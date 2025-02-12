@@ -13,7 +13,7 @@ export default function Home() {
           <div className="flex justify-between h-16">
             <div className="flex-shrink-0 flex items-center space-x-2">
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                SwiftPOS V2
+                SwiftPOSsdasdsad
               </span>
               <span className="ml-2 text-sm text-muted-foreground hidden sm:block border-l border-border pl-2">
                 | Point of Sale System
