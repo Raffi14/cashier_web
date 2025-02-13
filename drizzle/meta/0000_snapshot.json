@@ -1,33 +1,22 @@
 {
-  "id": "76e15669-0e8b-468e-bb88-08217998da04",
+  "id": "ab5075ca-bde1-4ed6-8151-f46c2860a160",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.customers": {
-      "name": "customers",
+    "public.customer": {
+      "name": "customer",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "customers_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -39,16 +28,9 @@
         },
         "phone_number": {
           "name": "phone_number",
-          "type": "text",
+          "type": "varchar(15)",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -59,36 +41,25 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.products": {
-      "name": "products",
+    "public.product": {
+      "name": "product",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "products_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
+        "product_name": {
+          "name": "product_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "price": {
           "name": "price",
-          "type": "numeric",
+          "type": "numeric(10, 6)",
           "primaryKey": false,
           "notNull": true
         },
@@ -97,13 +68,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -114,26 +78,15 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.sales": {
-      "name": "sales",
+    "public.sale": {
+      "name": "sale",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "sales_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
@@ -149,7 +102,7 @@
         },
         "total_price": {
           "name": "total_price",
-          "type": "numeric",
+          "type": "numeric(10, 6)",
           "primaryKey": false,
           "notNull": true
         },
@@ -158,20 +111,13 @@
           "type": "date",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "sales_user_id_users_id_fk": {
-          "name": "sales_user_id_users_id_fk",
-          "tableFrom": "sales",
+        "sale_user_id_users_id_fk": {
+          "name": "sale_user_id_users_id_fk",
+          "tableFrom": "sale",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -182,10 +128,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "sales_customer_id_customers_id_fk": {
-          "name": "sales_customer_id_customers_id_fk",
-          "tableFrom": "sales",
-          "tableTo": "customers",
+        "sale_customer_id_customer_id_fk": {
+          "name": "sale_customer_id_customer_id_fk",
+          "tableFrom": "sale",
+          "tableTo": "customer",
           "columnsFrom": [
             "customer_id"
           ],
@@ -208,20 +154,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "sale_detail_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "sale_id": {
           "name": "sale_id",
@@ -243,24 +178,17 @@
         },
         "sub_total": {
           "name": "sub_total",
-          "type": "numeric",
+          "type": "numeric(10, 6)",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "sale_detail_sale_id_sales_id_fk": {
-          "name": "sale_detail_sale_id_sales_id_fk",
+        "sale_detail_sale_id_sale_id_fk": {
+          "name": "sale_detail_sale_id_sale_id_fk",
           "tableFrom": "sale_detail",
-          "tableTo": "sales",
+          "tableTo": "sale",
           "columnsFrom": [
             "sale_id"
           ],
@@ -270,10 +198,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "sale_detail_product_id_products_id_fk": {
-          "name": "sale_detail_product_id_products_id_fk",
+        "sale_detail_product_id_product_id_fk": {
+          "name": "sale_detail_product_id_product_id_fk",
           "tableFrom": "sale_detail",
-          "tableTo": "products",
+          "tableTo": "product",
           "columnsFrom": [
             "product_id"
           ],
@@ -296,36 +224,25 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "users_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "username": {
           "name": "username",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "password": {
           "name": "password",
-          "type": "text",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "full_name": {
           "name": "full_name",
-          "type": "text",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true
         },
@@ -335,13 +252,6 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},

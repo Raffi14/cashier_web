@@ -1,19 +1,17 @@
-import { sql } from "drizzle-orm";
-import { pgTable, integer, decimal, timestamp } from "drizzle-orm/pg-core";
-import { Products } from "./product";
-import { Sale } from "./sales";
+import { pgTable, integer, decimal, timestamp, serial } from "drizzle-orm/pg-core";
+import { products } from "./product";
+import { sales } from "./sales";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-export  const saleDetail = pgTable('sale_detail', {
-    id: integer().generatedAlwaysAsIdentity().primaryKey(),
-    sale_id: integer().notNull().references(() => Sale.id),
-    product_id: integer().notNull().references(() => Products.id),
+export  const saleDetails = pgTable('sale_detail', {
+    id: serial().primaryKey(),
+    sale_id: integer().notNull().references(() => sales.id),
+    product_id: integer().notNull().references(() => products.id),
     quantity: integer().notNull(),
-    sub_total: decimal().notNull(),
-    created_at: timestamp({ withTimezone: true }).notNull().default(sql `now()`),
+    sub_total: decimal({precision:10, scale:6}).notNull(),
 });
 
-export const saleDetailSchema = {
-    insert: createInsertSchema(saleDetail),
-    select: createSelectSchema(saleDetail),
+export const detailPenjualanSchema = {
+    insert: createInsertSchema(saleDetails),
+    select: createSelectSchema(saleDetails),
 };

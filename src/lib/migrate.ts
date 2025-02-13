@@ -1,13 +1,18 @@
-import { defaultConfig } from '@/config';
+import { defaultConfig } from '../../envConfig';
+import { users } from '@/models/user';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
 import readline from 'readline';
+import { db } from '@/lib/database';
+import { sql } from 'drizzle-orm';
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+
+const dbConnect = db;
 
 async function question(query: string): Promise<string> {
   return new Promise((resolve) => rl.question(query, resolve));
@@ -51,6 +56,18 @@ export async function runMigrations() {
       migrationsFolder: './drizzle'
     });
     console.log('✅ Migrations completed successfully');
+
+    console.log('👤 Creating default user...');
+    const defaultUser = {
+      username: 'admin',
+      password: '$argon2id$v=19$m=16,t=2,p=1$SkI5aFN6TUo1RWhGVFpBUQ$gE9t/yHLQrkD4/Lg5bk9ZA',
+      full_name: "admin default",
+      role: sql`'admin'`,
+    };
+
+    await dbConnect.insert(users).values(defaultUser).onConflictDoNothing().execute();
+    console.log('✅ Default user created');
+
     await db.end();
     rl.close();
   } catch (error) {
