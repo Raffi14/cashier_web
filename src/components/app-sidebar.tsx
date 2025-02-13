@@ -19,7 +19,7 @@ import {
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
+import { Collapsible, CollapsibleTrigger } from "./ui/collapsible"
 
 const data = {
   navMain: [

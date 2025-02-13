@@ -6,8 +6,7 @@ import { useState } from "react";
 import { MenuIcon } from "lucide-react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const [activeItem, setActiveItem] = useState('/views/product'); // Default active item
-
+  const [activeItem, setActiveItem] = useState('/views/product');
   const handleItemSelect = (url: any) => {
     setActiveItem(url);
   };

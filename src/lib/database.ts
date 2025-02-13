@@ -1,4 +1,4 @@
-import { defaultConfig } from "@/config";
+import { defaultConfig } from "../../envConfig";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from 'pg';
 

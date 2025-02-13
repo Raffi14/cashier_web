@@ -1,17 +1,17 @@
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { defaultConfig } from "../../envConfig";
+
+const baseUrl = defaultConfig.webUrl;
 
 export const httpGet = async (url: string, params?: any) => {
   const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
-  const response = await fetch(`${baseUrl}${url}${queryString}`, {
+  const response = await fetch(`${url}${queryString}`, {
     method: 'GET',
+    credentials: "include",
     headers: {
       'Content-Type': 'application/json',
     },
   });
-  if (response.status == 200) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
+  return response
 };
 
 export const httpPost = async (url: string, data: any) => {
@@ -20,6 +20,7 @@ export const httpPost = async (url: string, data: any) => {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: "include",
     body: JSON.stringify(data),
   });
   return response
@@ -31,12 +32,10 @@ export const httpPut = async (url: string, data: any) => {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
+  return response
 };
 
 export const httpDelete = async (url: string) => {
@@ -45,9 +44,7 @@ export const httpDelete = async (url: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: "include",
   });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
+  return response;
 };

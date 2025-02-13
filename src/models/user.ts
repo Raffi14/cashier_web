@@ -1,18 +1,16 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, pgEnum, serial, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export const user_role = pgEnum('user_role', ['admin', 'staff']);
-export const Users = pgTable('users', {
-    id: integer().generatedAlwaysAsIdentity().primaryKey(),
-    username: text().notNull(),
-    password: text().notNull(),
-    full_name: text().notNull(),
+export const users = pgTable('users', {
+    id: serial().primaryKey(),
+    username: varchar({length:255}).notNull(),
+    password: varchar({length:255}).notNull(),
+    full_name: varchar({length:50}).notNull(),
     role: user_role().notNull(),
-    created_at: timestamp({ withTimezone: true }).notNull().default(sql `now()`),
 })
 
 export const userSchema = {
-    insert: createInsertSchema(Users),
-    select: createSelectSchema(Users),
+    insert: createInsertSchema(users),
+    select: createSelectSchema(users),
 }
