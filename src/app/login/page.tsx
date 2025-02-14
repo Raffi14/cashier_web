@@ -14,9 +14,24 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const router = useRouter();
+  const [passwordError, setPasswordError] = useState("");
   
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+  
+    if (newPassword.length > 0 && newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+    } else {
+      setPasswordError("");
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.trim() && password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
     const response = await httpPost('/api/login',{
       username,
       password,
@@ -55,10 +70,11 @@ const Login = () => {
               <Input
                 id="password"
                 type="password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 placeholder="Enter your password"
                 required
               />
+            {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
             </div>
           </CardContent>
           <CardFooter>

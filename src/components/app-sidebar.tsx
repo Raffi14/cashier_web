@@ -46,8 +46,8 @@ const data = {
       icon: HistoryIcon,
     },
     {
-      title: "Registration",
-      url: "/views/registration",
+      title: "Users",
+      url: "/views/user",
       icon: UserPlus2,
     },
   ],

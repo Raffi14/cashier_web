@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash, ArrowUp, ArrowDown } from "lucide-react";
+import { Pencil, Trash, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { httpDelete, httpGet, httpPost, httpPut } from "@/lib/http";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table";
 
 type Product = {
   id: number;
@@ -18,7 +20,6 @@ type Product = {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,61 +28,23 @@ export default function ProductsPage() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"product_name" | "price" | "id" | "stock" |null>(null);
-  const [sortAsc, setSortAsc] = useState(true);
   
   const fetchProducts = async () => {
     const response = await httpGet("/api/product");
     const data = await response.json();
     setProducts(data.data || []);
-    setFilteredProducts(data.data);
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    let updatedProducts = [...products];
-
-    if (search) {
-      updatedProducts = updatedProducts.filter((product) =>
-        product.product_name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (sortBy) {
-      updatedProducts.sort((a, b) => {
-        if (sortBy === "product_name") {
-          return sortAsc ? a.product_name.localeCompare(b.product_name) : b.product_name.localeCompare(a.product_name);
-        } else if (sortBy === "price") {
-          return sortAsc ? a.price - b.price : b.price - a.price;
-        } else if (sortBy === "id") {
-          return sortAsc ? a.id - b.id : b.id - a.id;
-        } else if (sortBy === "stock") {
-          return sortAsc ? a.stock - b.stock : b.stock - a.stock;
-        }
-        return 0;
-      });
-    }
-
-  setFilteredProducts(updatedProducts);
-  }, [search, sortBy, sortAsc, products]);
-
   const openModal = (product?: Product) => {
-    if (product) {
-      setEditProduct(product);
-      setName(product.product_name);
-      setPrice(product.price.toString());
-      setStock(product.stock.toString());
-    } else {
-      setEditProduct(null);
-      setName("");
-      setPrice("");
-      setStock("");
-    }
-    setModalOpen(true);
+      setEditProduct(product || null);
+      setName(product?.product_name || "");
+      setPrice(String(product?.price ?? ""));
+      setStock(String(product?.stock ?? ""));
+      setModalOpen(true);
   };
 
   const handleSubmit = async () => {
@@ -92,20 +55,10 @@ export default function ProductsPage() {
     setLoading(true);
 
     try {
-      let response;
-      if (editProduct) {
-        response = await httpPut(`/api/product/${editProduct.id}`, {
-          product_name: name,
-          price: parseFloat(price),
-          stock: parseInt(stock),
-        });
-      } else {
-        response = await httpPost("/api/product", {
-          product_name: name,
-          price: parseFloat(price),
-          stock: parseInt(stock),
-        });
-      }
+      const isEditing = !!editProduct && !!editProduct.id;
+      const endpoint = isEditing ? `/api/product/${editProduct.id}` : "/api/product";
+      const method = isEditing ? httpPut : httpPost;
+      const response = await method(endpoint, { product_name: name, price, stock });
 
       const responseData = await response.json();
       if (!response.ok) {
@@ -139,63 +92,52 @@ export default function ProductsPage() {
     }
   };
   
+  const columns: ColumnDef<Product>[] = [
+    { accessorKey: "id", header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Id
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+    },
+    { accessorKey: "product_name", header: "Name" },
+    { accessorKey: "price", header: () => <div>Price</div>,
+      cell: ({ row }) => {
+        const price = parseFloat(row.getValue("price"));
+        const formatted = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(price);
+
+        return <div className="font-medium">{formatted}</div>
+    },
+  },
+    { accessorKey: "stock", header: "stock" },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" onClick={() => openModal(row.original)}>
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
+            <Trash className="w-4 h-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="p-6 w-full mx-auto">
       <h1 className="text-3xl font-bold mb-6 border-b-2">Manage Products</h1>
-      <div className="flex gap-4">
-      <Input
-        className="mb-4"
-        placeholder="Search products..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Button onClick={() => openModal()} className="mb-4">+ Add Product</Button>
-      </div>
-
-      <Table className="border bg-white rounded-lg shadow w-full">
-        <TableHeader>
-          <TableRow className="bg-gray-100 h-[50px]">
-            <TableHead className="cursor-pointer text-left w-[10px]" onClick={() => { setSortBy("id"); setSortAsc(!sortAsc); }}>
-              Id {sortBy === "id" && (sortAsc ? <ArrowUp size={14} className="text-left" /> : <ArrowDown size={14} className="text-left"/>)}
-            </TableHead>
-            <TableHead className="cursor-pointer text-center w-[80px]" onClick={() => { setSortBy("product_name"); setSortAsc(!sortAsc); }}>
-              Name {sortBy === "product_name" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
-            </TableHead>
-            <TableHead className="cursor-pointer text-center w-[100px]" onClick={() => { setSortBy("price"); setSortAsc(!sortAsc); }}>
-              Price {sortBy === "price" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
-            </TableHead>
-            <TableHead  className="cursor-pointer text-center w-[100px]" onClick={() => { setSortBy("stock"); setSortAsc(!sortAsc); }}>
-              Stock {sortBy === "stock" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
-            </TableHead>
-            <TableHead className="text-center w-[150px]">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {
-          filteredProducts.length > 0 ?
-          Array.isArray(filteredProducts) && filteredProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell className="text-left">{product.id}</TableCell>
-              <TableCell className="text-center">{product.product_name}</TableCell>
-              <TableCell className="text-center">Rp {Math.floor(product.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</TableCell>
-              <TableCell className="text-center">{product.stock}</TableCell>
-              <TableCell className="flex gap-2 text-center justify-center">
-                <Button variant="outline" size="icon" onClick={() => openModal(product)}>
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button variant="destructive" size="icon" onClick={() => handleDelete(product.id)}>
-                  <Trash className="w-4 h-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          )) : 
-          <TableRow className="h-[50px]">
-            <TableCell colSpan={5} className="text-center py-4">No products available</TableCell>
-          </TableRow>
-          }
-        </TableBody>
-      </Table>
+      <DataTable columns={columns} data={products} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="w-full max-w-md p-6">
           <DialogHeader>
