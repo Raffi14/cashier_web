@@ -9,7 +9,7 @@ CREATE TABLE "customer" (
 CREATE TABLE "product" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"product_name" varchar(255) NOT NULL,
-	"price" numeric(10, 6) NOT NULL,
+	"price" integer NOT NULL,
 	"stock" integer NOT NULL
 );
 --> statement-breakpoint
@@ -17,7 +17,7 @@ CREATE TABLE "sale" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"customer_id" integer NOT NULL,
-	"total_price" numeric(10, 6) NOT NULL,
+	"total_price" integer NOT NULL,
 	"sale_date" date NOT NULL
 );
 --> statement-breakpoint
@@ -26,7 +26,7 @@ CREATE TABLE "sale_detail" (
 	"sale_id" integer NOT NULL,
 	"product_id" integer NOT NULL,
 	"quantity" integer NOT NULL,
-	"sub_total" numeric(10, 6) NOT NULL
+	"sub_total" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "users" (

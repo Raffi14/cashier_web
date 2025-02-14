@@ -1,5 +1,5 @@
 {
-  "id": "ab5075ca-bde1-4ed6-8151-f46c2860a160",
+  "id": "efa9c3be-04c9-4042-86ed-be1776ca364c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -59,7 +59,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -102,7 +102,7 @@
         },
         "total_price": {
           "name": "total_price",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -178,7 +178,7 @@
         },
         "sub_total": {
           "name": "sub_total",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }

@@ -3,8 +3,10 @@
 import * as React from "react"
 import {
   Box,
+  HistoryIcon,
   Package,
   ReceiptTextIcon,
+  UserPlus2,
   Users,
 } from "lucide-react"
 
@@ -38,15 +40,20 @@ const data = {
       url: "/views/transaction",
       icon: ReceiptTextIcon,
     },
+    {
+      title: "History Transactions",
+      url: "/views/history",
+      icon: HistoryIcon,
+    },
+    {
+      title: "Registration",
+      url: "/views/registration",
+      icon: UserPlus2,
+    },
   ],
 }
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  activeItem: string;
-  onItemSelect: (url: string) => void;
-}
-
-export function AppSidebar({ activeItem, onItemSelect, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex items-center border-b-2 p-4 h-16">
@@ -63,7 +70,7 @@ export function AppSidebar({ activeItem, onItemSelect, ...props }: AppSidebarPro
         </Collapsible>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} activeItem={activeItem} onItemSelect={onItemSelect} />
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser/>

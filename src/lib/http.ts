@@ -1,4 +1,4 @@
-import { defaultConfig } from "../../envConfig";
+import { defaultConfig } from "@/envConfig";
 
 const baseUrl = defaultConfig.webUrl;
 

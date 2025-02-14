@@ -1,28 +1,28 @@
 import { Auth } from "@/lib/auth";
 import { db } from "@/lib/database";
-import { products } from "@/models/product";
+import { customers } from "@/models/customers";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const user = await Auth(req);
-        if (!user) {
-          return NextResponse.json({error : "Unauthorized "}, { status: 401 });
+    if (!user) {
+      return NextResponse.json({error : "Unauthorized "}, { status: 401 });
     }
-    const { product_name, price, stock } = await req.json();
+    const { name, address, phone_number } = await req.json();
     const id = parseInt(await params.id);
-       const getProduk = await db
+       const getcustomer = await db
          .select()
-         .from(products)
-         .where(eq(products.id, id))
+         .from(customers)
+         .where(eq(customers.id, id))
          .limit(1).execute();
  
-       if (getProduk.length == 0) {
-         return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
+       if (getcustomer.length == 0) {
+         return NextResponse.json({error: "Data customer tidak ada"}, {status: 409})
        }
  
-      await db.update(products).set({ product_name, price, stock }).where(eq(products.id, id)).execute();
+      await db.update(customers).set({ name, address, phone_number }).where(eq(customers.id, id)).execute();
       return NextResponse.json({message: "successful"}, {status: 200});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
@@ -38,21 +38,22 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       if (!user) {
         return NextResponse.json({error : "Unauthorized "}, { status: 401 });
       }
+
       const id = parseInt(params.id);
       if (isNaN(id)) {
         throw new Error("Invalid ID parameter");
       }
-         const getProduk = await db
+         const getcustomer = await db
            .select()
-           .from(products)
-           .where(eq(products.id, id))
+           .from(customers)
+           .where(eq(customers.id, id))
            .limit(1).execute();
    
-         if (getProduk.length == 0) {
-           return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
+         if (getcustomer.length == 0) {
+           return NextResponse.json({error: "Data customer tidak ada"}, {status: 409})
          }
    
-        await db.delete(products).where(eq(products.id, id)).execute();
+        await db.delete(customers).where(eq(customers.id, id)).execute();
         return NextResponse.json({message: "successful"}, {status: 200});
     } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});

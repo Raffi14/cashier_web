@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 export const products = pgTable('product', {
     id: serial().primaryKey(),
     product_name: varchar({length:255}).notNull(),
-    price: decimal({precision:10, scale:6}).notNull(),
+    price: integer().notNull(),
     stock: integer().notNull(),
 });
 

@@ -5,7 +5,7 @@ import { db } from '@/lib/database';
 import { users, userSchema } from '@/models/user';
 import { eq } from 'drizzle-orm';
 import jwt from "jsonwebtoken"
-import { defaultConfig } from '../../../../envConfig';
+import { defaultConfig } from '@/envConfig';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       if(!JWT_SECRET){
         throw new Error("secret key not found");
       }
-      const token = jwt.sign({ id: user[0].id}, JWT_SECRET, {
+      const token = jwt.sign({ id: user[0].id, role: user[0].role}, JWT_SECRET, {
         expiresIn: "7d",
       });
 

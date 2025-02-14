@@ -9,20 +9,21 @@ export default function AuthGuard() {
   const pathname = usePathname();
   
   useEffect(() => {
+    console.log("AuthGuard Running"); // Debugging pertama
+
     const token = Cookies.get("token");
+    console.log("Token:", token); // Debugging kedua
 
     if (!token && pathname !== "/login") {
-      router.push("/login");
-    }
-
-    if (!token && pathname == "/") {
-      router.push("/");
+      console.log("Redirecting to /login");
+      router.replace("/login");
     }
 
     if (token && pathname === "/login") {
-      router.push("/views/product");
+      console.log("Redirecting to /views/product");
+      router.replace("/views/product");
     }
   }, [pathname]);
 
-  return null
+  return null;
 }

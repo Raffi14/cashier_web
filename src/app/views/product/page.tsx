@@ -143,7 +143,7 @@ export default function ProductsPage() {
   return (
     <div className="p-6 w-full mx-auto">
       <h1 className="text-3xl font-bold mb-6 border-b-2">Manage Products</h1>
-      <div className="flex">
+      <div className="flex gap-4">
       <Input
         className="mb-4"
         placeholder="Search products..."
@@ -153,22 +153,22 @@ export default function ProductsPage() {
       <Button onClick={() => openModal()} className="mb-4">+ Add Product</Button>
       </div>
 
-      <Table className="border bg-white rounded-lg shadow">
+      <Table className="border bg-white rounded-lg shadow w-full">
         <TableHeader>
-          <TableRow className="bg-gray-100">
-            <TableHead className="w-[100px] cursor-pointer" onClick={() => { setSortBy("id"); setSortAsc(!sortAsc); }}>
-              Id {sortBy === "id" && (sortAsc ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+          <TableRow className="bg-gray-100 h-[50px]">
+            <TableHead className="cursor-pointer text-left w-[10px]" onClick={() => { setSortBy("id"); setSortAsc(!sortAsc); }}>
+              Id {sortBy === "id" && (sortAsc ? <ArrowUp size={14} className="text-left" /> : <ArrowDown size={14} className="text-left"/>)}
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => { setSortBy("product_name"); setSortAsc(!sortAsc); }}>
-              Name {sortBy === "product_name" && (sortAsc ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+            <TableHead className="cursor-pointer text-center w-[80px]" onClick={() => { setSortBy("product_name"); setSortAsc(!sortAsc); }}>
+              Name {sortBy === "product_name" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => { setSortBy("price"); setSortAsc(!sortAsc); }}>
-              Price {sortBy === "price" && (sortAsc ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+            <TableHead className="cursor-pointer text-center w-[100px]" onClick={() => { setSortBy("price"); setSortAsc(!sortAsc); }}>
+              Price {sortBy === "price" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
             </TableHead>
-            <TableHead  className="cursor-pointer" onClick={() => { setSortBy("stock"); setSortAsc(!sortAsc); }}>
-              Stock {sortBy === "stock" && (sortAsc ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+            <TableHead  className="cursor-pointer text-center w-[100px]" onClick={() => { setSortBy("stock"); setSortAsc(!sortAsc); }}>
+              Stock {sortBy === "stock" && (sortAsc ? <ArrowUp size={14} className="text-center"/> : <ArrowDown size={14} className="text-center"/>)}
             </TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead className="text-center w-[150px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -176,11 +176,11 @@ export default function ProductsPage() {
           filteredProducts.length > 0 ?
           Array.isArray(filteredProducts) && filteredProducts.map((product) => (
             <TableRow key={product.id}>
-              <TableCell>{product.id}</TableCell>
-              <TableCell>{product.product_name}</TableCell>
-              <TableCell>Rp {Math.floor(product.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell className="flex gap-2">
+              <TableCell className="text-left">{product.id}</TableCell>
+              <TableCell className="text-center">{product.product_name}</TableCell>
+              <TableCell className="text-center">Rp {Math.floor(product.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</TableCell>
+              <TableCell className="text-center">{product.stock}</TableCell>
+              <TableCell className="flex gap-2 text-center justify-center">
                 <Button variant="outline" size="icon" onClick={() => openModal(product)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
@@ -190,8 +190,8 @@ export default function ProductsPage() {
               </TableCell>
             </TableRow>
           )) : 
-          <TableRow>
-          <TableCell colSpan={5} className="text-center py-4">No products available</TableCell>
+          <TableRow className="h-[50px]">
+            <TableCell colSpan={5} className="text-center py-4">No products available</TableCell>
           </TableRow>
           }
         </TableBody>
