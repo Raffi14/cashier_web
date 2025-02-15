@@ -23,6 +23,7 @@ type CartItem = {
   product_name: string;
   price: number;
   quantity: number;
+  stock: number;
 };
 
 type Customers = {
@@ -56,6 +57,7 @@ export default function TransactionsPage() {
               [item.id]: item.price * item.quantity,
             }));          
         });
+        console.log(subTotal)
     setTotal(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
   }, [cart]);
 
@@ -192,6 +194,7 @@ export default function TransactionsPage() {
                       type="number"
                       value={item.quantity}
                       min="1"
+                      max={item.stock}
                       onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
                       className="w-16 text-center"
                     />
