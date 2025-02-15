@@ -12,7 +12,6 @@ export default function AuthGuard() {
     const token = Cookies.get("token");
     
     if (token && pathname === "/login") {
-      console.log("Redirecting to /views/product");
       router.replace("/views/product");
     }
   }, [pathname]);
