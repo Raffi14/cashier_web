@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
        }
  
       await db.update(customers).set({ name, address, phone_number }).where(eq(customers.id, id)).execute();
-      return NextResponse.json({message: "successful"}, {status: 200});
+      return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
   }
@@ -54,7 +54,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
          }
    
         await db.delete(customers).where(eq(customers.id, id)).execute();
-        return NextResponse.json({message: "successful"}, {status: 200});
+        return NextResponse.json({message: "success"}, {status: 200});
     } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});
     }

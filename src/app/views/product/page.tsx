@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash, ArrowUp, ArrowDown, ArrowUpDown, Boxes, Package, XCircle } from "lucide-react";
 import { httpDelete, httpGet, httpPost, httpPut } from "@/lib/http";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 type Product = {
   id: number;
@@ -28,6 +28,7 @@ export default function ProductsPage() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   
   const fetchProducts = async () => {
     const response = await httpGet("/api/product");
@@ -39,24 +40,28 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  const openModal = (product?: Product) => {
+  const totalProducts = products.length;
+  const totalStock = products.reduce((acc, product) => acc + product.stock, 0);
+  const outOfStockCount = products.filter((product) => product.stock === 0).length;
+
+  const openModal = (product?: Product, isOpen? : boolean) => {
       setEditProduct(product || null);
       setName(product?.product_name || "");
       setPrice(String(product?.price ?? ""));
       setStock(String(product?.stock ?? ""));
       setModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (!name || !price || !stock) {
-      return;
-    }
-
-    setLoading(true);
-
+      setIsEditing(isOpen || false)
+    };
+    
+    const handleSubmit = async () => {
+      if (!name || !price || !stock) {
+        return;
+      }
+      
+      setLoading(true);
+      
     try {
-      const isEditing = !!editProduct && !!editProduct.id;
-      const endpoint = isEditing ? `/api/product/${editProduct.id}` : "/api/product";
+      const endpoint = isEditing ? `/api/product/${editProduct?.id}` : "/api/product";
       const method = isEditing ? httpPut : httpPost;
       const response = await method(endpoint, { product_name: name, price, stock });
 
@@ -81,7 +86,7 @@ export default function ProductsPage() {
       const response = await httpDelete(`/api/product/${id}`);
       if (!response.ok) {
         const data = await response.json();
-        setErrorMessage(data.error || "Failed to delete product");
+        setErrorMessage(data.error || "Gagal menghapus data produk");
         setErrorDialogOpen(true);
         return;
       }
@@ -103,8 +108,8 @@ export default function ProductsPage() {
         </Button>
       ),
     },
-    { accessorKey: "product_name", header: "Name" },
-    { accessorKey: "price", header: () => <div>Price</div>,
+    { accessorKey: "product_name", header: "Nama" },
+    { accessorKey: "price", header: () => <div>Harga</div>,
       cell: ({ row }) => {
         const price = parseFloat(row.getValue("price"));
         const formatted = new Intl.NumberFormat("id-ID", {
@@ -117,13 +122,13 @@ export default function ProductsPage() {
         return <div className="font-medium">{formatted}</div>
     },
   },
-    { accessorKey: "stock", header: "stock" },
+    { accessorKey: "stock", header: "Stok" },
     {
       id: "actions",
-      header: "Actions",
+      header: "Aksi",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={() => openModal(row.original)}>
+          <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
@@ -136,21 +141,49 @@ export default function ProductsPage() {
 
   return (
     <div className="p-6 w-full mx-auto">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Manage Products</h1>
+      <h1 className="text-3xl font-bold mb-6 border-b-2">Data Produk</h1>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-500" />Total Produk
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold">{totalProducts}</CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Boxes className="w-5 h-5 text-green-500" />Total Stok
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold">{totalStock}</CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <XCircle className="w-5 h-5 text-red-500" />Produk Habis
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold">{outOfStockCount}</CardContent>
+        </Card>
+      </div>
       <DataTable columns={columns} data={products} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="w-full max-w-md p-6">
           <DialogHeader>
-            <DialogTitle>{editProduct ? "Edit Product" : "Add Product"}</DialogTitle>
+            <DialogTitle>{isEditing ? "Edit Produk" : "Tambah Produk"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input placeholder="Price" type="number" value={Math.floor(parseInt(price)) || ""} onChange={(e) => setPrice(e.target.value)} required />
-            <Input placeholder="Stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
+            <Input placeholder="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input placeholder="Harga" type="number" value={Math.floor(parseInt(price)) || ""} onChange={(e) => setPrice(e.target.value)} required />
+            <Input placeholder="Stok" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Saving..." : editProduct ? "Save Changes" : "Add Product"}
+              {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -162,7 +195,7 @@ export default function ProductsPage() {
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Tutup</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

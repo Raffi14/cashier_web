@@ -48,18 +48,18 @@ export function DataTable<TData, TValue>({ columns, data , onAdd}: DataTableProp
     onGlobalFilterChange: setGlobalFilter,
   })
   
-  const firstColumnId = table.getAllColumns()[0]?.id;  // Kolom pertama
+  const firstColumnId = table.getAllColumns()[0]?.id;
   const secondColumnId = table.getAllColumns()[1]?.id;
   return (
     <div>
       <div className="flex gap-4 mb-2 no-">
         <Input
-          placeholder="Search..."
+          placeholder="Cari..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="w-full"
         />
-        <Button onClick={onAdd}>+ Add User</Button>
+        <Button onClick={onAdd}>+ Tambah</Button>
       </div>
 
       <div className="rounded-md border">
@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({ columns, data , onAdd}: DataTableProp
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          Sebelumnya
         </Button>
         <Button
             variant="outline"
@@ -122,7 +122,7 @@ export function DataTable<TData, TValue>({ columns, data , onAdd}: DataTableProp
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
         >
-          Next
+          Selanjutnya
         </Button> 
       </div>
     </div>

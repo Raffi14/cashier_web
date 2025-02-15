@@ -1,7 +1,7 @@
 import { pgTable, text, integer, pgEnum, serial, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-export const user_role = pgEnum('user_role', ['admin', 'staff']);
+export const user_role = pgEnum('user_role', ['admin', 'petugas']);
 export const users = pgTable('users', {
     id: serial().primaryKey(),
     username: varchar({length:255}).notNull(),

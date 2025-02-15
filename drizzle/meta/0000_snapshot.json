@@ -1,5 +1,5 @@
 {
-  "id": "efa9c3be-04c9-4042-86ed-be1776ca364c",
+  "id": "efec81a9-670c-498b-8fa4-bbd5607c181d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -269,7 +269,7 @@
       "schema": "public",
       "values": [
         "admin",
-        "staff"
+        "petugas"
       ]
     }
   },

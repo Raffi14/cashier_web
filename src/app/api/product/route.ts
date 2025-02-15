@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
        }
  
       await db.insert(products).values({ product_name, price, stock }).execute();
-      return NextResponse.json({message: "successful"}, {status: 200});
+      return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});
   }
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({error : "Unauthorized "}, { status: 401 });
     }
     const getProduk = await db.select().from(products).orderBy(products.id).execute();
-    return NextResponse.json({message: "successful", data: getProduk ?? []});
+    return NextResponse.json({message: "success", data: getProduk ?? []});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
   }

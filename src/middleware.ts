@@ -20,12 +20,11 @@ export async function middleware(req: NextRequest) {
 
         const secret = new TextEncoder().encode(secretKey);
         const { payload } = await jwtVerify(token, secret) as { payload: JWTPayload };
-        console.log(payload)
         if (!payload || !payload.id) {
             return NextResponse.redirect(new URL("/login", req.url));
         }
 
-        if (req.nextUrl.pathname === "/views/product" && payload.role !== "admin") {
+        if (req.nextUrl.pathname === "/views/user" && payload.role !== "admin") {
             return new NextResponse(JSON.stringify({ error: "Forbidden" }), {
                 status: 403,
                 headers: { "Content-Type": "application/json" },

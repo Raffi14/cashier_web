@@ -22,38 +22,28 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleTrigger } from "./ui/collapsible"
+import Cookies from "js-cookie"
+import { useEffect, useState } from "react"
 
-const data = {
-  navMain: [
-    {
-      title: "Products",
-      url: "/views/product",
-      icon: Box,
-    },
-    {
-      title: "Customers",
-      url: "/views/customer",
-      icon: Users,
-    },
-    {
-      title: "Transactions",
-      url: "/views/transaction",
-      icon: ReceiptTextIcon,
-    },
-    {
-      title: "History Transactions",
-      url: "/views/history",
-      icon: HistoryIcon,
-    },
-    {
-      title: "Users",
-      url: "/views/user",
-      icon: UserPlus2,
-    },
-  ],
-}
+const getNavItems = (role: string | undefined) => {
+  const menu = [
+    { title: "Produk", url: "/views/product", icon: Box },
+    { title: "Pelanggan", url: "/views/customer", icon: Users },
+    { title: "Transaksi", url: "/views/transaction", icon: ReceiptTextIcon },
+    { title: "Riwayat Transaksi", url: "/views/history", icon: HistoryIcon },
+    { title: "Pengguna", url: "/views/user", icon: UserPlus2 },
+  ];
+
+  return role === "petugas" ? menu.filter(item => item.title !== "Pengguna") : menu;
+};
 
 export function AppSidebar({ ...props }) {
+  const [navMain, setNavMain] = useState<{ title: string; url: string; icon: any }[]>([]);
+
+  useEffect(() => {
+    const role = Cookies.get("role");
+    setNavMain(getNavItems(role));
+  }, []);
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex items-center border-b-2 p-4 h-16">
@@ -70,7 +60,7 @@ export function AppSidebar({ ...props }) {
         </Collapsible>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser/>

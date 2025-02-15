@@ -24,13 +24,13 @@ export async function POST(req: NextRequest) {
         .limit(1).execute();
         
         if (!user[0]) {
-          return NextResponse.json({error: "Invalid username"}, {status: 404})
+          return NextResponse.json({error: "username salah"}, {status: 404})
         }
         
         const passwordMatch = await argon2.verify(user[0].password, password);
         
         if (!passwordMatch) {
-          return NextResponse.json({error: "Invalid password"}, {status: 404})
+          return NextResponse.json({error: "password salah"}, {status: 404})
       }
 
       const JWT_SECRET = defaultConfig.secretKey;
@@ -47,6 +47,13 @@ export async function POST(req: NextRequest) {
       response.cookies.set({
         name: 'token',
         value: token,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7
+      })
+      response.cookies.set({
+        name: 'role',
+        value: user[0].role,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 7

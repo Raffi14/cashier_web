@@ -28,6 +28,7 @@ export default function CustomersPage() {
   const [address, setAddress] = useState("");
   const [phone_number, setPhone_number] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fetchcustomers = async () => {
     const response = await httpGet("/api/customer");
@@ -39,20 +40,20 @@ export default function CustomersPage() {
     fetchcustomers();
   }, []);
 
-  const openModal = (customers?: customers) => {
+  const openModal = (customers?: customers, isOpen?: boolean) => {
       setEditcustomers(customers || null);
       setName(customers?.name || "");
       setAddress(customers?.address || "");
       setPhone_number(customers?.phone_number || "");
       setModalOpen(true);
+      setIsEditing(isOpen || false);
   };
 
   const handleSubmit = async () => {
     if (!name || !address || !phone_number) return;
     setLoading(true);
     try {
-      const isEditing = !!editcustomers && !!editcustomers.id;
-      const endpoint = isEditing ? `/api/customer/${editcustomers.id}` : "/api/customer";
+      const endpoint = isEditing ? `/api/customer/${editcustomers?.id}` : "/api/customer";
       const method = isEditing ? httpPut : httpPost;
       const response = await method(endpoint, { name, address, phone_number });
       const responseData = await response.json();
@@ -77,7 +78,7 @@ export default function CustomersPage() {
       const response = await httpDelete(`/api/customer/${id}`);
       if (!response.ok) {
         const data = await response.json();
-        setErrorMessage(data.error || "Failed to delete customers");
+        setErrorMessage(data.error || "Gagal menghapus data pelanggan");
         setErrorDialogOpen(true);
         return;
       }
@@ -99,15 +100,15 @@ export default function CustomersPage() {
         </Button>
       ),
     },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "address", header: "Address" },
-    { accessorKey: "phone_number", header: "phone_number" },
+    { accessorKey: "name", header: "Nama" },
+    { accessorKey: "address", header: "Alamat" },
+    { accessorKey: "phone_number", header: "Nomer Telepon" },
     {
       id: "actions",
-      header: "Actions",
+      header: "Aksi",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={() => openModal(row.original)}>
+          <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
@@ -120,21 +121,21 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6 w-full mx-auto">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Manage Customers</h1>
+      <h1 className="text-3xl font-bold mb-6 border-b-2">Data Pelanggan</h1>
       <DataTable columns={columns} data={customers} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="w-full max-w-md p-6">
           <DialogHeader>
-            <DialogTitle>{editcustomers ? "Edit customers" : "Add customers"}</DialogTitle>
+            <DialogTitle>{isEditing ? "Edit pelanggan" : "Tambah pelanggan"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input placeholder="customers Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input placeholder="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
-            <Input placeholder="phone_number" value={phone_number} onChange={(e) => setPhone_number(e.target.value)} required />
+            <Input placeholder="Nama Pelanggan" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input placeholder="Alamat" value={address} onChange={(e) => setAddress(e.target.value)} required />
+            <Input placeholder="Nomer Telepon" value={phone_number} onChange={(e) => setPhone_number(e.target.value)} required />
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Saving..." : editcustomers ? "Save Changes" : "Add Customers"}
+              {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -146,7 +147,7 @@ export default function CustomersPage() {
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Tutup</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

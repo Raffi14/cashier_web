@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
        }
  
       await db.insert(customers).values({ name, address, phone_number}).execute();
-      return NextResponse.json({message: "successful"}, {status: 200});
+      return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});
   }
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({error : "Unauthorized "}, { status: 401 });
     }
     const getcustomer = await db.select().from(customers).orderBy(customers.id).execute();
-    return NextResponse.json({message: "successful", data: getcustomer ?? []});
+    return NextResponse.json({message: "success", data: getcustomer ?? []});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
   }

@@ -11,7 +11,7 @@ export  const saleDetails = pgTable('sale_detail', {
     sub_total: integer().notNull(),
 });
 
-export const detailPenjualanSchema = {
+export const saleDetailSchema = {
     insert: createInsertSchema(saleDetails),
     select: createSelectSchema(saleDetails),
 };

@@ -50,7 +50,7 @@ const Login = () => {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">Sign in</CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to continue
+            Masukkan kredensial Anda untuk melanjutkan
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -61,7 +61,7 @@ const Login = () => {
                 id="username"
                 type="text"
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Masukkan username"
                 required
               />
             </div>
@@ -71,7 +71,7 @@ const Login = () => {
                 id="password"
                 type="password"
                 onChange={handlePasswordChange}
-                placeholder="Enter your password"
+                placeholder="Masukkan password"
                 required
               />
             {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}

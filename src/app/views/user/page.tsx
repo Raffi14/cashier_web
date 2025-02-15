@@ -30,13 +30,14 @@ export default function UsersPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-  
+  const [isEditing, setIsEditing] = useState(false);
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
   
     if (newPassword.length > 0 && newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError("Kata sandi harus memiliki setidaknya 8 karakter");
     } else {
       setPasswordError("");
     }
@@ -56,18 +57,19 @@ export default function UsersPage() {
     }
   };
 
-  const openModal = (user?: User) => {
+  const openModal = (user?: User, isOpen? : boolean) => {
     setEditUser(user || null);
     setFullName(user?.full_name || "");
     setRole(user?.role || "");
     setUsername(user?.username || "");
     setModalOpen(true);
+    setIsEditing(isOpen || false);
   };
 
   const handleSubmit = async () => {
     if (!fullName || !role || !username) return;
     if (password.trim() && password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError("Kata sandi harus memiliki setidaknya 8 karakter");
       return;
     }
     setLoading(true);
@@ -131,15 +133,15 @@ export default function UsersPage() {
         </Button>
       ),
     },
-    { accessorKey: "full_name", header: "Full Name" },
+    { accessorKey: "full_name", header: "Nama Lengkap" },
     { accessorKey: "role", header: "Role" },
-    { accessorKey: "username", header: "Username" },
+    { accessorKey: "username", header: "Nama Pengguna" },
     {
       id: "actions",
-      header: "Actions",
+      header: "Aksi",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={() => openModal(row.original)}>
+          <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
@@ -152,31 +154,31 @@ export default function UsersPage() {
 
   return (
     <div className="p-6 w-full mx-auto">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Manage Users</h1>
+      <h1 className="text-3xl font-bold mb-6 border-b-2">Data Pengguna</h1>
       <DataTable columns={columns} data={users} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
     <DialogContent className="w-full max-w-md p-6">
       <DialogHeader>
-        <DialogTitle>{editUser ? "Edit User" : "Add User"}</DialogTitle>
+        <DialogTitle>{isEditing ? "Edit Pengguna" : "Tambah Pengguna"}</DialogTitle>
       </DialogHeader>
       <div className="space-y-4">
-        <Input placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+        <Input placeholder="Nama Lengkap" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
         <Select onValueChange={setRole} value={role}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Role" />
+            <SelectValue placeholder="Pilih role" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="staff">Staff</SelectItem>
+            <SelectItem value="petugas">Petugas</SelectItem>
           </SelectContent>
         </Select>
-        <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        <Input placeholder="Nama Pengguna" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <Input placeholder="Password" onChange={handlePasswordChange} required />
         {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
       </div>
       <DialogFooter>
         <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? "Saving..." : editUser ? "Save Changes" : "Add User"}
+          {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah"}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -188,7 +190,7 @@ export default function UsersPage() {
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Tutup</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
