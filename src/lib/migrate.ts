@@ -1,35 +1,31 @@
-import { defaultConfig } from '../../envConfig';
-import { users } from '@/models/user';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
 import readline from 'readline';
-import { db } from '@/lib/database';
-import { sql } from 'drizzle-orm';
+import argon2, { argon2id } from 'argon2';
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const dbConnect = db;
-
-async function question(query: string): Promise<string> {
+async function question(query: string) {
   return new Promise((resolve) => rl.question(query, resolve));
 }
 
-const databaseUrl = defaultConfig.databaseUrl;
+const databaseUrl = 'postgresql://postgres:123@localhost:5432/cashier_db';
+
 export async function runMigrations() {
   try {
-    if(!databaseUrl) {
-        console.error('❌ databaseUrl is not set');
-        process.exit(1);
+    if (!databaseUrl) {
+      console.error('❌ databaseUrl is not set');
+      process.exit(1);
     }
+    
     const dbName = new URL(databaseUrl).pathname.slice(1);
     const pgClient = new pg.Client({
       connectionString: databaseUrl.replace(`/${dbName}`, '/postgres')
     });
-
     await pgClient.connect();
 
     const dbExists = await pgClient.query(
@@ -37,7 +33,7 @@ export async function runMigrations() {
     );
 
     if (!dbExists.rows.length) {
-      const answer = await question(`Database "${dbName}" does not exist. Create it? (y/n): `);
+      const answer = await question(`Database "${dbName}" does not exist. Create it? (y/n): `) as string;
       
       if (answer.toLowerCase() === 'y') {
         await pgClient.query(`CREATE DATABASE ${dbName}`);
@@ -57,16 +53,28 @@ export async function runMigrations() {
     });
     console.log('✅ Migrations completed successfully');
 
-    console.log('👤 Creating default user...');
-    const defaultUser = {
-      username: 'admin',
-      password: '$argon2id$v=19$m=16,t=2,p=1$SkI5aFN6TUo1RWhGVFpBUQ$gE9t/yHLQrkD4/Lg5bk9ZA',
-      full_name: "admin default",
-      role: sql`'admin'`,
-    };
+    console.log('👤 Checking for default user...');
+    const existingUser = await db.query(`SELECT * FROM users WHERE username = 'admin'`);
+    
+    if (existingUser.rows.length > 0) {
+      console.log('✅ Default user already exists');
+    } else {
+      console.log('👤 Creating default user...');
+      
+      const username = await question('Enter default username: ');
+      const password = await question('Enter default password: ') as string;
+      const fullName = await question('Enter full name: ');
+      const hash = await argon2.hash(password, {
+        type: argon2id,
+      })
 
-    await dbConnect.insert(users).values(defaultUser).onConflictDoNothing().execute();
-    console.log('✅ Default user created');
+      await db.query(
+        `INSERT INTO users (username, password, full_name, role) 
+        VALUES ($1, $2, $3, $4)`,
+        [username, hash, fullName, 'admin']
+      );
+      console.log('✅ Default user created');
+    }
 
     await db.end();
     rl.close();

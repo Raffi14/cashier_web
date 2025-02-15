@@ -1,5 +1,5 @@
 {
-  "id": "ab5075ca-bde1-4ed6-8151-f46c2860a160",
+  "id": "efec81a9-670c-498b-8fa4-bbd5607c181d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -59,7 +59,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -102,7 +102,7 @@
         },
         "total_price": {
           "name": "total_price",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -178,7 +178,7 @@
         },
         "sub_total": {
           "name": "sub_total",
-          "type": "numeric(10, 6)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
@@ -269,7 +269,7 @@
       "schema": "public",
       "values": [
         "admin",
-        "staff"
+        "petugas"
       ]
     }
   },

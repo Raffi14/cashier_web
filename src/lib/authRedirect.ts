@@ -10,19 +10,12 @@ export default function AuthGuard() {
   
   useEffect(() => {
     const token = Cookies.get("token");
-
-    if (!token && pathname !== "/login") {
-      router.push("/login");
-    }
-
-    if (!token && pathname == "/") {
-      router.push("/");
-    }
-
+    
     if (token && pathname === "/login") {
-      router.push("/views/product");
+      console.log("Redirecting to /views/product");
+      router.replace("/views/product");
     }
   }, [pathname]);
 
-  return null
+  return null;
 }

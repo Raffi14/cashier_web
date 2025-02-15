@@ -14,6 +14,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface NavMainProps {
   items: {
@@ -21,11 +23,15 @@ interface NavMainProps {
     url: string;
     icon?: LucideIcon;
   }[];
-  activeItem: string;
-  onItemSelect: (url: string) => void;
 }
 
-export function NavMain({ items, activeItem, onItemSelect }: NavMainProps) {
+export function NavMain({ items}: NavMainProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+  useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -36,22 +42,20 @@ export function NavMain({ items, activeItem, onItemSelect }: NavMainProps) {
             asChild
             className="group/collapsible"
           >
-            <a href={item.url}>
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton tooltip={item.title} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all 
                               hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                                activeItem === item.url ? 'bg-gray-200 dark:bg-gray-700' : ''
+                                pathname === item.url ? 'bg-gray-200 dark:bg-gray-700' : ''
                                 }`}
                               key={item.url}
-                              onClick={() => onItemSelect(item.url)}
+                              onClick={() => router.push(item.url)}
                                 >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
               </SidebarMenuItem>
-            </a>
           </Collapsible>
         ))}
       </SidebarMenu>

@@ -3,8 +3,10 @@
 import * as React from "react"
 import {
   Box,
+  HistoryIcon,
   Package,
   ReceiptTextIcon,
+  UserPlus2,
   Users,
 } from "lucide-react"
 
@@ -20,33 +22,28 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleTrigger } from "./ui/collapsible"
+import Cookies from "js-cookie"
+import { useEffect, useState } from "react"
 
-const data = {
-  navMain: [
-    {
-      title: "Products",
-      url: "/views/product",
-      icon: Box,
-    },
-    {
-      title: "Customers",
-      url: "/views/customer",
-      icon: Users,
-    },
-    {
-      title: "Transactions",
-      url: "/views/transaction",
-      icon: ReceiptTextIcon,
-    },
-  ],
-}
+const getNavItems = (role: string | undefined) => {
+  const menu = [
+    { title: "Produk", url: "/views/product", icon: Box },
+    { title: "Pelanggan", url: "/views/customer", icon: Users },
+    { title: "Transaksi", url: "/views/transaction", icon: ReceiptTextIcon },
+    { title: "Riwayat Transaksi", url: "/views/history", icon: HistoryIcon },
+    { title: "Pengguna", url: "/views/user", icon: UserPlus2 },
+  ];
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  activeItem: string;
-  onItemSelect: (url: string) => void;
-}
+  return role === "petugas" ? menu.filter(item => item.title !== "Pengguna") : menu;
+};
 
-export function AppSidebar({ activeItem, onItemSelect, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }) {
+  const [navMain, setNavMain] = useState<{ title: string; url: string; icon: any }[]>([]);
+
+  useEffect(() => {
+    const role = Cookies.get("role");
+    setNavMain(getNavItems(role));
+  }, []);
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex items-center border-b-2 p-4 h-16">
@@ -63,7 +60,7 @@ export function AppSidebar({ activeItem, onItemSelect, ...props }: AppSidebarPro
         </Collapsible>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} activeItem={activeItem} onItemSelect={onItemSelect} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser/>

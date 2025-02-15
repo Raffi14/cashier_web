@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify, JWTPayload } from "jose";
-import { defaultConfig } from "../envConfig";
+import { defaultConfig } from "@/envConfig";
 
 export async function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
@@ -20,9 +20,15 @@ export async function middleware(req: NextRequest) {
 
         const secret = new TextEncoder().encode(secretKey);
         const { payload } = await jwtVerify(token, secret) as { payload: JWTPayload };
-
         if (!payload || !payload.id) {
             return NextResponse.redirect(new URL("/login", req.url));
+        }
+
+        if (req.nextUrl.pathname === "/views/user" && payload.role !== "admin") {
+            return new NextResponse(JSON.stringify({ error: "Forbidden" }), {
+                status: 403,
+                headers: { "Content-Type": "application/json" },
+            });
         }
 
         return NextResponse.next();
@@ -34,7 +40,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
     matcher: [
       "/views/:path*",
-      "/api/product",
     ]
   };
   

@@ -8,10 +8,10 @@ export  const saleDetails = pgTable('sale_detail', {
     sale_id: integer().notNull().references(() => sales.id),
     product_id: integer().notNull().references(() => products.id),
     quantity: integer().notNull(),
-    sub_total: decimal({precision:10, scale:6}).notNull(),
+    sub_total: integer().notNull(),
 });
 
-export const detailPenjualanSchema = {
+export const saleDetailSchema = {
     insert: createInsertSchema(saleDetails),
     select: createSelectSchema(saleDetails),
 };

@@ -7,7 +7,7 @@ export const sales = pgTable('sale', {
     id: serial().primaryKey(),
     user_id: integer().notNull().references(() => users.id),
     customer_id: integer().notNull().references(() => customers.id),
-    total_price: decimal({precision:10, scale:6}).notNull(),
+    total_price: integer().notNull(),
     sale_date: date().notNull(),
 });
 
