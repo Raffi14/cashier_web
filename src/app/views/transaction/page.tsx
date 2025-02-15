@@ -44,6 +44,9 @@ export default function TransactionsPage() {
   const [subTotal, setSubTotal] = useState<{ [key: number]: number }>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [Message, setMessage] = useState("");
+  const [productStock, setProductStock] = useState<{ [key: number]: number }>(
+    Object.fromEntries(products.map((product) => [product.id, product.stock]))
+  );
 
   useEffect(() => {
     fetchProducts();
@@ -57,9 +60,16 @@ export default function TransactionsPage() {
               [item.id]: item.price * item.quantity,
             }));          
         });
-        console.log(subTotal)
     setTotal(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
   }, [cart]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      setProductStock(
+        Object.fromEntries(products.map((product) => [product.id, product.stock]))
+      );
+    }
+  }, [products]);
 
   const fetchProducts = async () => {
     const response = await httpGet("/api/product");
@@ -75,27 +85,63 @@ export default function TransactionsPage() {
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
+      return prevCart.map((item) => {
+        if (item.id === product.id) {
+          if (item.quantity >= product.stock) {
+            return item;
+          }
+          return { ...item, quantity: item.quantity + 1 };
+        }
+        return item;
+      }).concat(prevCart.find(item => item.id === product.id) ? [] : [{ ...product, quantity: 1 }]);
     });
+    setProductStock((prevStock) => ({
+      ...prevStock,
+      [product.id]: Math.max(0, (prevStock[product.id] || 0) - 1),
+    }));
   };
-
-  const updateQuantity = (productId: number, quantity: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) => (item.id === productId ? { ...item, quantity } : item))
-    );
-  };
+  
+  const updateQuantity = (productId: number, newQuantity: number) => {
+    setCart((prevCart) => {
+      return prevCart.map((item) => {
+        if (item.id === productId) {
+          const originalStock = products.find((p) => p.id === productId)?.stock || 0;
+          const currentStock = productStock[productId] ?? originalStock;
+          const quantityChange = newQuantity - item.quantity;
+          if (quantityChange > 0 && currentStock < quantityChange) {  
+            return item;
+          }
+          setProductStock((prevStock) => ({
+            ...prevStock,
+            [productId]: Math.max(0, currentStock - quantityChange),
+          }));
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      });
+    });
+  };  
 
   const removeFromCart = (productId: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-    delete subTotal[productId]
+    setCart((prevCart) => {
+      const removedItem = prevCart.find((item) => item.id === productId);
+      if (!removedItem) return prevCart; 
+      const originalProduct = products.find((product) => product.id === productId);
+      if (!originalProduct) return prevCart;
+      setProductStock((prevStock) => ({
+        ...prevStock,
+        [productId]: originalProduct.stock,
+      }));
+  
+      return prevCart.filter((item) => item.id !== productId);
+    });
+    setSubTotal((prevSubTotal) => {
+      const newSubTotal = { ...prevSubTotal };
+      delete newSubTotal[productId];
+      return newSubTotal;
+    });
   };
+  
 
   const handleCheckout = async () => {
     if (!selectedCustomer || cart.length === 0) return;
@@ -118,6 +164,7 @@ export default function TransactionsPage() {
       setCart([]);
       setMessage("Transaksi berhasil")
       setDialogOpen(true);
+      fetchProducts();
     } catch (error) {
       console.error("Transaction error:", error);
     } finally {
@@ -137,12 +184,11 @@ export default function TransactionsPage() {
             onChange={(e) => setSearchProduct(e.target.value)}
             className="mb-4"
           />
-        
           <div className="grid grid-cols-2 gap-4">
             {products
               .filter((product) => product.product_name.toLowerCase().includes(searchProduct.toLowerCase()))
               .map((product) => (
-                <Card key={product.id} className="cursor-pointer hover:shadow-md" onClick={() => {
+                <Card key={product.id} className={`cursor-pointer hover:shadow-md ${productStock[product.id] === 0 ? "opacity-50 cursor-not-allowed" : ""}`} onClick={() => {
                   if (product.stock === 0) return;
                   addToCart(product)
                 }
@@ -152,8 +198,8 @@ export default function TransactionsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-lg font-semibold">Rp {formatPrice(product.price)}</p>
-                    <p className="text-sm text-gray-500">Stok: {product.stock}</p>
-                    <Button className="mt-2 w-full">Tambahkan ke keranjang</Button>
+                    <p className="text-sm text-gray-500">Stok: {productStock[product.id]}</p>
+                    <Button className="mt-2 w-full" disabled={productStock[product.id] === 0}>Tambahkan ke keranjang</Button>
                   </CardContent>
                 </Card>
               ))}
@@ -162,7 +208,6 @@ export default function TransactionsPage() {
         <div className="w-px bg-gray-300"></div>
         <div className="w-1/3 flex flex-col">
           <h2 className="text-xl font-bold mb-4">🛒 Keranjang</h2>
-
           <Select onValueChange={setSelectedCustomer}>
             <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-blue-500">
               <SelectValue placeholder="🔽 Pilih pelanggan" />
@@ -195,7 +240,12 @@ export default function TransactionsPage() {
                       value={item.quantity}
                       min="1"
                       max={item.stock}
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                      onChange={(e) => {
+                        let newQuantity = parseInt(e.target.value, 10);
+                        if (isNaN(newQuantity) || newQuantity < 1) newQuantity = 1;
+                  
+                        updateQuantity(item.id, newQuantity);
+                      }}
                       className="w-16 text-center"
                     />
                   </TableCell>
