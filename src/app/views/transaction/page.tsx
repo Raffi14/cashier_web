@@ -241,9 +241,7 @@ export default function TransactionsPage() {
                       min="1"
                       max={item.stock}
                       onChange={(e) => {
-                        let newQuantity = parseInt(e.target.value, 10);
-                        if (isNaN(newQuantity) || newQuantity < 1) newQuantity = 1;
-                  
+                        let newQuantity = parseInt(e.target.value);                  
                         updateQuantity(item.id, newQuantity);
                       }}
                       className="w-16 text-center"

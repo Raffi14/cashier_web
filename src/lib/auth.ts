@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
-import { JwtPayload, verify, Jwt } from "jsonwebtoken";
+import { NextRequest } from "next/server"
+import { JwtPayload, verify } from "jsonwebtoken";
 import { defaultConfig } from "@/envConfig";
 import { db } from "./database";
 import { users } from "@/models/user";

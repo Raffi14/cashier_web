@@ -216,35 +216,40 @@ export default function HistoryTransaksi() {
       </div>
       <DataTable columns={columns} data={filteredTransactions} />
       <Dialog open={!!selectedTransaction} onOpenChange={() => setSelectedTransaction(null)}>
-          <DialogContent className="max-w-lg bg-white rounded-lg shadow-lg">
+          <DialogContent aria-describedby="Detail" className="max-w-lg bg-white rounded-lg shadow-lg">
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-gray-800">Detail Transaksi</DialogTitle>
             </DialogHeader>
             {selectedTransaction && (
-              <div className="p-4 text-gray-700">
-                <p><strong>ID:</strong> {selectedTransaction.id}</p>
-                <p><strong>Customer:</strong> {selectedTransaction.customer_name}</p>
-                <p><strong>Total Harga:</strong> {formatPrice(selectedTransaction.total_price)}</p>
-                <p><strong>Tanggal:</strong> {new Date(selectedTransaction.sale_date).toLocaleDateString()}</p>
-                <h3 className="mt-4 font-bold">Produk:</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nama Produk</TableHead>
-                      <TableHead>Kuantitas</TableHead>
-                      <TableHead>Subtotal</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedTransaction.items.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{item.product_name}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{formatPrice(item.sub_total)}</TableCell>
+              <div className="p-6 bg-white shadow-lg rounded-lg">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Detail Transaksi</h2>
+                <div className="border-b border-gray-200 pb-4 mb-4">
+                  <p className="text-gray-700"><strong>ID:</strong> {selectedTransaction.id}</p>
+                  <p className="text-gray-700"><strong>Customer:</strong> {selectedTransaction.customer_name}</p>
+                  <p className="text-gray-700"><strong>Total Harga:</strong> {formatPrice(selectedTransaction.total_price)}</p>
+                  <p className="text-gray-700"><strong>Tanggal:</strong> {new Date(selectedTransaction.sale_date).toLocaleDateString()}</p>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Produk</h3>
+                <div className="overflow-x-auto">
+                  <Table className="w-full border border-gray-200 rounded-lg">
+                    <TableHeader className="bg-gray-100">
+                      <TableRow>
+                        <TableHead className="px-4 py-2 text-left">Nama Produk</TableHead>
+                        <TableHead className="px-4 py-2 text-center">Kuantitas</TableHead>
+                        <TableHead className="px-4 py-2 text-right">Subtotal</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedTransaction.items.map((item, index) => (
+                        <TableRow key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                          <TableCell className="px-4 py-2">{item.product_name}</TableCell>
+                          <TableCell className="px-4 py-2 text-center">{item.quantity}</TableCell>
+                          <TableCell className="px-4 py-2 text-right">{formatPrice(item.sub_total)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             )}
           </DialogContent>
