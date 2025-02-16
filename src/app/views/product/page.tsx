@@ -172,7 +172,7 @@ export default function ProductsPage() {
       </div>
       <DataTable columns={columns} data={products} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="w-full max-w-md p-6">
+        <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
           <DialogHeader>
             <DialogTitle>{isEditing ? "Edit Produk" : "Tambah Produk"}</DialogTitle>
           </DialogHeader>

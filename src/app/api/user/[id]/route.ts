@@ -3,6 +3,7 @@ import { db } from "@/lib/database";
 import { users } from "@/models/user";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+import argon2 from "argon2";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -12,19 +13,36 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     const { full_name, username, role, password} = await req.json();
     const id = parseInt(await params.id);
-       const getProduk = await db
-         .select()
-         .from(users)
-         .where(eq(users.id, id))
-         .limit(1).execute();
+      const getProduk = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1).execute();
  
-       if (getProduk.length == 0) {
-         return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
-       }
- 
-      await db.update(users).set({ full_name, username, role, password}).where(eq(users.id, id)).execute();
-      return NextResponse.json({message: "successful"}, {status: 200});
+      if (getProduk.length == 0) {
+        return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
+      }
+
+      const validRoles = ["admin", "petugas"] as const;
+      const roleIsValid = role ? validRoles.includes(role) : true;
+      if (!roleIsValid) {
+        return NextResponse.json({ error: "Role tidak valid" }, { status: 400 });
+      }
+      const updateData: { full_name?: string; username?: string; role?: "admin" | "petugas"; password?: string } = {
+        full_name,
+        username,
+        role: role as "admin" | "petugas",
+      };
+      
+      if (password) {
+        const hash = await argon2.hash(password, { type: argon2.argon2id });
+        updateData.password = hash;
+      }
+  
+      await db.update(users).set(updateData).where(eq(users.id, id)).execute();
+      return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
+    console.log(error)
     return NextResponse.json({error: "Internal server error"}, {status: 500});
   }
 }

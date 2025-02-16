@@ -157,7 +157,7 @@ export default function UsersPage() {
       <h1 className="text-3xl font-bold mb-6 border-b-2">Data Pengguna</h1>
       <DataTable columns={columns} data={users} onAdd={openModal}/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-    <DialogContent className="w-full max-w-md p-6">
+    <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
       <DialogHeader>
         <DialogTitle>{isEditing ? "Edit Pengguna" : "Tambah Pengguna"}</DialogTitle>
       </DialogHeader>
