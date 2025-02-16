@@ -173,10 +173,10 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-6 w-full mx-auto">
+    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
       <h1 className="text-3xl font-bold mb-6 border-b-2">Transaksi</h1>
-      <div className="flex gap-6">
-        <div className="flex-1">
+      <div className="flex max-h-full gap-6 h-full pb-28">
+      <div className="flex-1 pb-12">
           <h2 className="text-xl font-bold mb-4">Produk</h2>
           <Input
             placeholder="🔍 Cari produk..."
@@ -184,6 +184,7 @@ export default function TransactionsPage() {
             onChange={(e) => setSearchProduct(e.target.value)}
             className="mb-4"
           />
+          <div className="flex-1 max-h-full overflow-y-auto scrollbar-hide pr-2">
           <div className="grid grid-cols-2 gap-4">
             {products
               .filter((product) => product.product_name.toLowerCase().includes(searchProduct.toLowerCase()))
@@ -204,9 +205,10 @@ export default function TransactionsPage() {
                 </Card>
               ))}
           </div>
+          </div>
         </div>
         <div className="w-px bg-gray-300"></div>
-        <div className="w-1/3 flex flex-col">
+        <div className="w-1/3 flex flex-col h-full">
           <h2 className="text-xl font-bold mb-4">🛒 Keranjang</h2>
           <Select onValueChange={setSelectedCustomer}>
             <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-blue-500">
@@ -220,7 +222,6 @@ export default function TransactionsPage() {
               ))}
             </SelectContent>
           </Select>
-
           <Table className="mt-4">
             <TableHeader>
               <TableRow>

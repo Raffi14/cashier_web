@@ -26,10 +26,11 @@ import { Input } from "@/components/ui/input"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[],
-  onAdd: () => void
+  onAdd: () => void,
+  type: "produk" | "pelanggan" | "user"
 }
 
-export function DataTable<TData, TValue>({ columns, data , onAdd}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data , onAdd, type}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
   
@@ -46,13 +47,18 @@ export function DataTable<TData, TValue>({ columns, data , onAdd}: DataTableProp
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    initialState: {
+      pagination: {
+        pageSize: type === "produk" ? 7 : 10,
+      },
+    },
   })
   
   const firstColumnId = table.getAllColumns()[0]?.id;
   const secondColumnId = table.getAllColumns()[1]?.id;
   return (
     <div>
-      <div className="flex gap-4 mb-2 no-">
+      <div className="flex gap-4 mb-2">
         <Input
           placeholder="Cari..."
           value={globalFilter}
