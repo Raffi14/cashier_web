@@ -195,7 +195,7 @@ export default function HistoryTransaksi() {
   ];
 
   return (
-    <div className="p-6 w-full mx-auto">
+    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
       <h1 className="text-3xl font-bold mb-6 border-b-2">Riwayat Transaksi</h1>
       <div className="flex gap-6 mb-2">
         <Input type="text" placeholder="Cari nama pelanggan..." className="w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -221,8 +221,7 @@ export default function HistoryTransaksi() {
               <DialogTitle className="text-lg font-semibold text-gray-800">Detail Transaksi</DialogTitle>
             </DialogHeader>
             {selectedTransaction && (
-              <div className="p-6 bg-white shadow-lg rounded-lg">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Detail Transaksi</h2>
+              <div>
                 <div className="border-b border-gray-200 pb-4 mb-4">
                   <p className="text-gray-700"><strong>ID:</strong> {selectedTransaction.id}</p>
                   <p className="text-gray-700"><strong>Customer:</strong> {selectedTransaction.customer_name}</p>

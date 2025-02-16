@@ -140,7 +140,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="p-6 w-full mx-auto">
+    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
       <h1 className="text-3xl font-bold mb-6 border-b-2">Data Produk</h1>
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card>
@@ -170,7 +170,7 @@ export default function ProductsPage() {
           <CardContent className="text-2xl font-bold">{outOfStockCount}</CardContent>
         </Card>
       </div>
-      <DataTable columns={columns} data={products} onAdd={openModal}/>
+      <DataTable columns={columns} data={products} onAdd={openModal} type="produk"/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
           <DialogHeader>
