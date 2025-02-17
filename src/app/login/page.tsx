@@ -90,7 +90,7 @@ const Login = () => {
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unauthorized</AlertDialogTitle>
+            <AlertDialogTitle>Info</AlertDialogTitle>
             <AlertDialogDescription>
               {message}
             </AlertDialogDescription>

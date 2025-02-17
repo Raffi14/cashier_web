@@ -222,6 +222,7 @@ export default function TransactionsPage() {
               ))}
             </SelectContent>
           </Select>
+          <div className="scrollbar-hide overflow-y-auto">
           <Table className="mt-4">
             <TableHeader>
               <TableRow>
@@ -242,7 +243,7 @@ export default function TransactionsPage() {
                       min="1"
                       max={item.stock}
                       onChange={(e) => {
-                        let newQuantity = parseInt(e.target.value);                  
+                        let newQuantity = parseInt(e.target.value) || 1;                  
                         updateQuantity(item.id, newQuantity);
                       }}
                       className="w-16 text-center"
@@ -258,6 +259,7 @@ export default function TransactionsPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
           <div className="mt-4 text-xl font-bold">Total: Rp {formatPrice(total)}</div>
           <Button className="mt-4 w-full" onClick={handleCheckout} disabled={!selectedCustomer || cart.length === 0}>
             {loading ? "Memproses..." : "Selesaikan pembelian"}

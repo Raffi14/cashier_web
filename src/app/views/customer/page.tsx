@@ -143,7 +143,7 @@ export default function CustomersPage() {
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogTitle>info</AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
