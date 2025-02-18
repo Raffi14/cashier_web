@@ -31,6 +31,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; open: boolean }>({ id: 0, open: false });
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
@@ -119,6 +120,8 @@ export default function UsersPage() {
     } catch (error) {
       setErrorMessage("Unexpected error occurred");
       setErrorDialogOpen(true);
+    } finally {
+      setConfirmDelete({ id: 0, open: false });
     }
   };
 
@@ -144,7 +147,7 @@ export default function UsersPage() {
           <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
+          <Button variant="destructive" size="icon" onClick={() => setConfirmDelete({ id: row.original.id, open: true })}>
             <Trash className="w-4 h-4" />
           </Button>
         </div>
@@ -182,7 +185,19 @@ export default function UsersPage() {
         </Button>
       </DialogFooter>
     </DialogContent>
-  </Dialog>
+      <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin menghapus pengguna ini?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete({ id: 0, open: false })}>Batal</Button>
+            <AlertDialogAction onClick={() => handleDelete(confirmDelete.id)}>Hapus</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Dialog>
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

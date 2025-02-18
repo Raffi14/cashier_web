@@ -25,11 +25,13 @@ export default function ProductsPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(0);
   const [stock, setStock] = useState("");
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  
+  const [formattedPrice, setFormattedPrice] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; open: boolean }>({ id: 0, open: false });
+
   const fetchProducts = async () => {
     const response = await httpGet("/api/product");
     const data = await response.json();
@@ -47,7 +49,8 @@ export default function ProductsPage() {
   const openModal = (product?: Product, isOpen? : boolean) => {
       setEditProduct(product || null);
       setName(product?.product_name || "");
-      setPrice(String(product?.price ?? ""));
+      const price = product?.price !== undefined ? product.price.toString() : "";
+      setFormattedPrice(formatted(price).toString());
       setStock(String(product?.stock ?? ""));
       setModalOpen(true);
       setIsEditing(isOpen || false)
@@ -75,8 +78,10 @@ export default function ProductsPage() {
       fetchProducts();
       setModalOpen(false);
     } catch (error) {
+      setFormattedPrice('');
       console.error("Error submitting product:", error);
     } finally {
+      setFormattedPrice('');
       setLoading(false);
     }
   };
@@ -94,8 +99,26 @@ export default function ProductsPage() {
     } catch (error) {
       setErrorMessage("An unexpected error occurred");
       setErrorDialogOpen(true);
+    } finally {
+      setConfirmDelete({ id: 0, open: false });
     }
   };
+
+  const handleFormatted = (value: string) => {
+    let rawValue = value.replace(/[^0-9]/g, "");
+    const num = formatted(value);
+    setPrice(parseInt(rawValue));
+    setFormattedPrice(num);
+  };
+
+  const formatted = (value: string): string => {
+    let rawValue = value.replace(/[^0-9]/g, "");
+    const parts = rawValue.split("."); 
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const decimalPart = parts.length > 1 ? "." + parts[1] : "";
+    return integerPart + decimalPart;
+};
+
   
   const columns: ColumnDef<Product>[] = [
     { accessorKey: "id", header: ({ column }) => (
@@ -131,7 +154,7 @@ export default function ProductsPage() {
           <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
+          <Button variant="destructive" size="icon" onClick={() => setConfirmDelete({ id: row.original.id, open: true })}>
             <Trash className="w-4 h-4" />
           </Button>
         </div>
@@ -151,7 +174,6 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent className="text-2xl font-bold">{totalProducts}</CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -178,7 +200,7 @@ export default function ProductsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <Input placeholder="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input placeholder="Harga" type="number" value={Math.floor(parseInt(price)) || ""} onChange={(e) => setPrice(e.target.value)} required />
+            <Input placeholder="Harga" type="text" value={formattedPrice} onChange={(e) => handleFormatted(e.target.value)} required />
             <Input placeholder="Stok" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
           </div>
           <DialogFooter>
@@ -188,10 +210,22 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin menghapus produk ini?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete({ id: 0, open: false })}>Batal</Button>
+            <AlertDialogAction onClick={() => handleDelete(confirmDelete.id)}>Hapus</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogTitle>Info</AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

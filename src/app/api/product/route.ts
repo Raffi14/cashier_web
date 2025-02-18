@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from '@/lib/database'; 
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { products } from '@/models/product';
 import { NextRequest, NextResponse } from 'next/server';
 import { Auth } from '@/lib/auth';
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json({error : "Unauthorized "}, { status: 401 });
     }
-    const getProduk = await db.select().from(products).orderBy(products.id).execute();
+    const getProduk = await db.select().from(products).orderBy(desc(products.id)).execute();
     return NextResponse.json({message: "success", data: getProduk ?? []});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
