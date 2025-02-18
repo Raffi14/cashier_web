@@ -30,7 +30,8 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formattedPrice, setFormattedPrice] = useState("");
-  
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; open: boolean }>({ id: 0, open: false });
+
   const fetchProducts = async () => {
     const response = await httpGet("/api/product");
     const data = await response.json();
@@ -98,6 +99,8 @@ export default function ProductsPage() {
     } catch (error) {
       setErrorMessage("An unexpected error occurred");
       setErrorDialogOpen(true);
+    } finally {
+      setConfirmDelete({ id: 0, open: false });
     }
   };
 
@@ -151,7 +154,7 @@ export default function ProductsPage() {
           <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}>
+          <Button variant="destructive" size="icon" onClick={() => setConfirmDelete({ id: row.original.id, open: true })}>
             <Trash className="w-4 h-4" />
           </Button>
         </div>
@@ -207,6 +210,18 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin menghapus produk ini?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete({ id: 0, open: false })}>Batal</Button>
+            <AlertDialogAction onClick={() => handleDelete(confirmDelete.id)}>Hapus</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

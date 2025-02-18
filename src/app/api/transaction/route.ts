@@ -6,7 +6,7 @@ import { Auth } from '@/lib/auth';
 import { sales } from '@/models/sales';
 import { saleDetails, saleDetailSchema } from '@/models/sale_detail';
 import { products } from '@/models/product';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { customers } from '@/models/customers';
 
 type ItemType = {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       })
       .from(sales)
       .leftJoin(customers, eq(sales.customer_id, customers.id))
-      .orderBy(sales.sale_date);
+      .orderBy(desc(sales.id));
 
     const transactionDetails = await db
       .select({

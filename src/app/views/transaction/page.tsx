@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from "@/components/ui/table";
 import { httpGet, httpPost } from "@/lib/http";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 type Product = {
   id: number;
@@ -34,6 +34,7 @@ type Customers = {
 };
 
 export default function TransactionsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customers[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
@@ -44,6 +45,9 @@ export default function TransactionsPage() {
   const [subTotal, setSubTotal] = useState<{ [key: number]: number }>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [Message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [transactionSuccess, setTransactionSuccess] = useState(false);
   const [productStock, setProductStock] = useState<{ [key: number]: number }>(
     Object.fromEntries(products.map((product) => [product.id, product.stock]))
   );
@@ -141,7 +145,10 @@ export default function TransactionsPage() {
       return newSubTotal;
     });
   };
-  
+
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleCheckout = async () => {
     if (!selectedCustomer || cart.length === 0) return;
@@ -165,11 +172,17 @@ export default function TransactionsPage() {
       setMessage("Transaksi berhasil")
       setDialogOpen(true);
       fetchProducts();
+      setTransactionSuccess(true);
+      setSearchTerm('');
     } catch (error) {
       console.error("Transaction error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const navigateToTransactionHistory = () => {
+    router.push("/views/history");
   };
 
   return (
@@ -210,18 +223,36 @@ export default function TransactionsPage() {
         <div className="w-px bg-gray-300"></div>
         <div className="w-1/3 flex flex-col h-full">
           <h2 className="text-xl font-bold mb-4">🛒 Keranjang</h2>
-          <Select onValueChange={setSelectedCustomer}>
-            <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-blue-500">
-              <SelectValue placeholder="🔽 Pilih pelanggan" />
-            </SelectTrigger>
-            <SelectContent className="bg-white shadow-lg rounded-lg">
-              {customers.map((customer) => (
-                <SelectItem key={customer.id} value={customer.id.toString()} className="p-2 flex items-center space-x-6">
-                  <span>{customer.name}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Input
+              placeholder="🔍 Cari pelanggan..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 50)}
+              className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-1 focus:ring-gray-400"
+            />
+            {showDropdown && filteredCustomers.length > 0 && (
+              <div className="absolute w-full bg-white shadow-lg rounded-md mt-1 z-10 max-h-40 overflow-auto scrollbar-hide">
+                {filteredCustomers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="p-2 pl-4 hover:bg-gray-100 cursor-pointer"
+                    onMouseDown={() => {
+                      setSelectedCustomer(customer.id.toString());
+                      setSearchTerm(customer.name);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    {customer.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="scrollbar-hide overflow-y-auto">
           <Table className="mt-4">
             <TableHeader>
@@ -274,6 +305,11 @@ export default function TransactionsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setDialogOpen(false)}>Tutup</AlertDialogAction>
+            {transactionSuccess && (
+              <AlertDialogAction onClick={navigateToTransactionHistory}>
+                Lihat Riwayat
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
