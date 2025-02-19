@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({ columns, data , onAdd, type}: DataTab
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className={
                     header.column.id === firstColumnId ? "w-[80px] text-left pl-4" : 
-                    header.column.id === secondColumnId ? "text-left pl-8 w-[200px]" : 
+                    header.column.id === secondColumnId ? "text-left pl-24 w-[400px]" : 
                     "min-w-[150px] text-left"
                   }>
                     {header.isPlaceholder
@@ -94,7 +94,7 @@ export function DataTable<TData, TValue>({ columns, data , onAdd, type}: DataTab
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={
                       cell.column.id === firstColumnId ? "w-[80px] text-left pl-9" : 
-                      cell.column.id === secondColumnId ? "text-left pl-8 w-[200px]" : 
+                      cell.column.id === secondColumnId ? "text-left pl-24 w-[400px]" : 
                       "min-w-[150px] text-left"
                     } >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

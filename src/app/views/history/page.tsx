@@ -11,7 +11,6 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -71,10 +70,23 @@ export default function HistoryTransaksi() {
 
     if (quickFilter) {
       const today = new Date();
+      const startOfWeek = new Date(today);
+      const dayOfWeek = today.getDay(); 
+      const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      startOfWeek.setDate(today.getDate() + diffToMonday);
+      startOfWeek.setHours(0, 0, 0, 0);
+  
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+    
       filtered = filtered.filter((trx) => {
         const trxDate = new Date(trx.sale_date);
+    
         if (quickFilter === "today") {
           return trxDate.toDateString() === today.toDateString();
+        } else if (quickFilter === "week") {
+          return trxDate >= startOfWeek && trxDate <= endOfWeek;
         } else if (quickFilter === "month") {
           return (
             trxDate.getMonth() === today.getMonth() && trxDate.getFullYear() === today.getFullYear()
@@ -85,6 +97,7 @@ export default function HistoryTransaksi() {
         return true;
       });
     }
+    
 
     setFilteredTransactions(filtered);
   }, [startDate, endDate, transactions, searchQuery, quickFilter]);
@@ -195,8 +208,7 @@ export default function HistoryTransaksi() {
   ];
 
   return (
-    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Riwayat Transaksi</h1>
+    <div className="p-4 w-full mx-auto h-screen overflow-auto scrollbar-hide">
       <div className="flex gap-6 mb-2">
         <Input type="text" placeholder="Cari nama pelanggan..." className="w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         <Input type="date" className="w-36" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -208,6 +220,7 @@ export default function HistoryTransaksi() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="today">Hari Ini</SelectItem>
+            <SelectItem value="week">Minggu Ini</SelectItem>
             <SelectItem value="month">Bulan Ini</SelectItem>
             <SelectItem value="year">Tahun Ini</SelectItem>
           </SelectContent>

@@ -46,18 +46,7 @@ export function AppSidebar({ ...props }) {
   }, []);
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="flex items-center border-b-2 p-4 h-16">
-        <Collapsible className="group/collapsible">
-          <SidebarMenuItem className="flex">
-            <CollapsibleTrigger asChild>
-              <SidebarMenuSub className="border-none">
-              <span className="block text-center text-2xl font-bold text-gray-900 dark:text-gray-100">
-                SwiftPOS
-              </span>
-              </SidebarMenuSub>
-            </CollapsibleTrigger>
-          </SidebarMenuItem>
-        </Collapsible>
+      <SidebarHeader className="flex items-center h-16">
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
