@@ -40,8 +40,10 @@ export default function CustomersPage() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone_number, setPhone_number] = useState("");
+  const [rawNumber, setRawNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number;
     open: boolean;
@@ -61,13 +63,29 @@ export default function CustomersPage() {
     setEditcustomers(customers || null);
     setName(customers?.name || "");
     setAddress(customers?.address || "");
-    setPhone_number(customers?.phone_number || "");
+    if (customers?.phone_number) {
+      const formattedPhone = formatPhoneNumber(
+        customers.phone_number,
+        false
+      ).formatted;
+      setRawNumber(formattedPhone);
+      setPhone_number(customers.phone_number);
+    } else {
+      setRawNumber("");
+      setPhone_number("");
+    }
     setModalOpen(true);
     setIsEditing(isOpen || false);
   };
 
   const handleSubmit = async () => {
     if (!name || !address || !phone_number) return;
+    if (phone_number.length < 12) {
+      setError("Nomor telepon harus minimal 11 digit!");
+      return;
+    } else {
+      setError("");
+    }
     setLoading(true);
     try {
       const endpoint = isEditing
@@ -90,6 +108,37 @@ export default function CustomersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatPhoneNumber = (phone: string, isDeleting: boolean) => {
+    let cleaned = phone.replace(/\D/g, "");
+
+    if (cleaned.startsWith("62")) {
+      cleaned = cleaned.slice(2);
+    } else if (cleaned.startsWith("0")) {
+      cleaned = cleaned.slice(1);
+    }
+
+    let formatted = `+62 ${cleaned}`;
+    if (!isDeleting) {
+      formatted = `+62 ${cleaned
+        .replace(/(\d{3})(\d{4})(\d+)?/, "$1-$2-$3")
+        .trim()}`;
+    }
+
+    return { formatted, cleaned: "0" + cleaned };
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value.replace("+62 ", "");
+    const isDeleting =
+      e.nativeEvent instanceof InputEvent &&
+      e.nativeEvent.inputType === "deleteContentBackward";
+
+    const { formatted, cleaned } = formatPhoneNumber(input, isDeleting);
+
+    setRawNumber(formatted);
+    setPhone_number(cleaned);
   };
 
   // const handleDelete = async (id: number) => {
@@ -125,7 +174,27 @@ export default function CustomersPage() {
     },
     { accessorKey: "name", header: "Nama" },
     { accessorKey: "address", header: "Alamat" },
-    { accessorKey: "phone_number", header: "Nomer Telepon" },
+    {
+      accessorKey: "phone_number",
+      header: "Nomer Telepon",
+      cell: ({ row }) => {
+        const formatPhoneNumber = (phone: string) => {
+          let cleaned = phone.replace(/\D/g, "");
+
+          if (cleaned.startsWith("62")) {
+            cleaned = cleaned.slice(2);
+          } else if (cleaned.startsWith("0")) {
+            cleaned = cleaned.slice(1);
+          }
+
+          return `+62 ${cleaned
+            .replace(/(\d{3})(\d{4})(\d+)?/, "$1-$2-$3")
+            .trim()}`;
+        };
+
+        return formatPhoneNumber(row.original.phone_number);
+      },
+    },
     {
       id: "actions",
       header: "Aksi",
@@ -174,12 +243,17 @@ export default function CustomersPage() {
               onChange={(e) => setAddress(e.target.value)}
               required
             />
-            <Input
-              placeholder="Nomer Telepon"
-              value={phone_number}
-              onChange={(e) => setPhone_number(e.target.value)}
-              required
-            />
+            <div className="flex flex-col">
+              <Input
+                placeholder="Nomer Telepon"
+                value={rawNumber}
+                onChange={handleInputChange}
+                maxLength={17}
+                required
+                className="mb-0"
+              />
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={loading}>
