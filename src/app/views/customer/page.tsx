@@ -74,23 +74,23 @@ export default function CustomersPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      const response = await httpDelete(`/api/customer/${id}`);
-      if (!response.ok) {
-        const data = await response.json();
-        setErrorMessage(data.error || "Gagal menghapus data pelanggan");
-        setErrorDialogOpen(true);
-        return;
-      }
-      fetchcustomers();
-    } catch (error) {
-      setErrorMessage("An unexpected error occurred");
-      setErrorDialogOpen(true);
-    } finally {
-      setConfirmDelete({ id: 0, open: false });
-    }
-  };
+  // const handleDelete = async (id: number) => {
+  //   try {
+  //     const response = await httpDelete(`/api/customer/${id}`);
+  //     if (!response.ok) {
+  //       const data = await response.json();
+  //       setErrorMessage(data.error || "Gagal menghapus data pelanggan");
+  //       setErrorDialogOpen(true);
+  //       return;
+  //     }
+  //     fetchcustomers();
+  //   } catch (error) {
+  //     setErrorMessage("An unexpected error occurred");
+  //     setErrorDialogOpen(true);
+  //   } finally {
+  //     setConfirmDelete({ id: 0, open: false });
+  //   }
+  // };
   
   const columns: ColumnDef<customers>[] = [
     { accessorKey: "id", header: ({ column }) => (
@@ -114,9 +114,9 @@ export default function CustomersPage() {
           <Button variant="outline" size="icon" onClick={() => openModal(row.original, true)}>
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button variant="destructive" size="icon" onClick={() => setConfirmDelete({ id: row.original.id, open: true })}>
+          {/* <Button variant="destructive" size="icon" onClick={() => setConfirmDelete({ id: row.original.id, open: true })}>
             <Trash className="w-4 h-4" />
-          </Button>
+          </Button> */}
         </div>
       ),
     },
@@ -142,7 +142,7 @@ export default function CustomersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
+      {/* <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
@@ -153,7 +153,7 @@ export default function CustomersPage() {
             <AlertDialogAction onClick={() => handleDelete(confirmDelete.id)}>Hapus</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

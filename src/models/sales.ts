@@ -6,7 +6,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 export const sales = pgTable('sale', {
     id: serial().primaryKey(),
     user_id: integer().notNull().references(() => users.id),
-    customer_id: integer().notNull().references(() => customers.id),
+    customer_id: integer().references(() => customers.id),
     total_price: integer().notNull(),
     sale_date: date().notNull(),
 });

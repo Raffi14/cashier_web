@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const { customer_id, items, sale_date, total_price } = await req.json();
     const [post] = await db.insert(sales).values({
       user_id: user[0].id,
-      customer_id,
+      customer_id: customer_id ?? null,
       sale_date,
       total_price
     }).returning();
@@ -83,6 +83,7 @@ export async function GET(req: NextRequest) {
 
     const result = transactions.map((sale) => ({
       ...sale,
+      customer_name: sale.customer_name ?? 'pelanggan',
       items: transactionDetails.filter((detail) => detail.sale_id === sale.id),
     }));
 

@@ -16,6 +16,7 @@ type Product = {
   product_name: string;
   price: number;
   stock: number;
+  is_active: "active" | "inactive";
 };
 
 export default function ProductsPage() {
@@ -48,6 +49,7 @@ export default function ProductsPage() {
 
   const openModal = (product?: Product, isOpen? : boolean) => {
       setEditProduct(product || null);
+      setPrice(product?.price ?? 0);
       setName(product?.product_name || "");
       const price = product?.price !== undefined ? product.price.toString() : "";
       setFormattedPrice(formatted(price).toString());
@@ -81,7 +83,6 @@ export default function ProductsPage() {
       setFormattedPrice('');
       console.error("Error submitting product:", error);
     } finally {
-      setFormattedPrice('');
       setLoading(false);
     }
   };
@@ -192,7 +193,6 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent className="text-2xl font-bold">{totalStock}</CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function ProductsPage() {
             <DialogTitle>{isEditing ? "Edit Produk" : "Tambah Produk"}</DialogTitle>
           </DialogHeader>
           <div>
-            <Input placeholder="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input placeholder="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} required disabled={isEditing}/>
             <div className="flex items-center px-3 py-2">
               <span className="text-gray-500 mb-1">Rp</span>
               <Input
