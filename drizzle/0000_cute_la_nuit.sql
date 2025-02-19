@@ -36,7 +36,8 @@ CREATE TABLE "users" (
 	"username" varchar(255) NOT NULL,
 	"password" varchar NOT NULL,
 	"full_name" varchar(50) NOT NULL,
-	"role" "user_role" NOT NULL
+	"role" "user_role" NOT NULL,
+	"is_active" "is_active" NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "sale" ADD CONSTRAINT "sale_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

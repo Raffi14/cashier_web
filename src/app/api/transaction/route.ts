@@ -8,6 +8,7 @@ import { saleDetails, saleDetailSchema } from '@/models/sale_detail';
 import { products } from '@/models/product';
 import { eq, desc } from 'drizzle-orm';
 import { customers } from '@/models/customers';
+import { users } from '@/models/user';
 
 type ItemType = {
     id: number;
@@ -66,9 +67,11 @@ export async function GET(req: NextRequest) {
         customer_name: customers.name,
         total_price: sales.total_price,
         sale_date: sales.sale_date,
+        cashier_name: users.full_name
       })
       .from(sales)
       .leftJoin(customers, eq(sales.customer_id, customers.id))
+      .leftJoin(users, eq(sales.user_id, users.id))
       .orderBy(desc(sales.id));
 
     const transactionDetails = await db

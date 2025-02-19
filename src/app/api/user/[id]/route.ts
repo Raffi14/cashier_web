@@ -42,7 +42,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       await db.update(users).set(updateData).where(eq(users.id, id)).execute();
       return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
-    console.log(error)
     return NextResponse.json({error: "Internal server error"}, {status: 500});
   }
 }
@@ -60,17 +59,20 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       if (isNaN(id)) {
         throw new Error("Invalid ID parameter");
       }
-         const getProduk = await db
+         const getUser = await db
            .select()
            .from(users)
            .where(eq(users.id, id))
            .limit(1).execute();
    
-         if (getProduk.length == 0) {
-           return NextResponse.json({error: "Data user tidak ada"}, {status: 409})
-         }
-   
-        await db.delete(users).where(eq(users.id, id)).execute();
+           if (getUser.length === 0) {
+            return NextResponse.json({ error: "Data user tidak ada" }, { status: 409 });
+          }
+          await db
+            .update(users)
+            .set({ is_active: "inactive" })
+            .where(eq(users.id, id))
+            .execute();
         return NextResponse.json({message: "successful"}, {status: 200});
     } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});

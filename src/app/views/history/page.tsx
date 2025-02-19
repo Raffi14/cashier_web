@@ -21,6 +21,7 @@ interface jsPDFWithAutoTable extends jsPDF {
 type Transaction = {
   id: number;
   customer_name: string;
+  cashier_name: string;
   total_price: number;
   sale_date: string;
   items: {
@@ -176,6 +177,7 @@ export default function HistoryTransaksi() {
       </Button>
     ),
     },
+    { accessorKey: "cashier_name", header: "Kasir" },
     { accessorKey: "customer_name", header: "Pelanggan" },
     { accessorKey: "total_price", header: "Total", cell: ({ row }) => {
         const price = parseFloat(row.getValue("total_price"));

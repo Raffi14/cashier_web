@@ -3,7 +3,7 @@
 import * as argon2 from 'argon2';
 import { db } from '@/lib/database'; 
 import { users, userSchema } from '@/models/user';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import jwt from "jsonwebtoken"
 import { defaultConfig } from '@/envConfig';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       const user = await db
         .select()
         .from(users)
-        .where(eq(users.username, username))
+        .where(and(eq(users.username, username), eq(users.is_active, "active")))
         .limit(1).execute();
         
         if (!user[0]) {

@@ -1,5 +1,5 @@
 {
-  "id": "af663d02-c787-4f68-9779-4067dc948c3f",
+  "id": "e8e482bc-39f0-4b25-9039-f3c3b68b421b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -256,6 +256,13 @@
         "role": {
           "name": "role",
           "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "is_active",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
