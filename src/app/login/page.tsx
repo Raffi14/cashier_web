@@ -90,7 +90,7 @@ const Login = () => {
                 required
               />
               {passwordError && (
-                <p className="text-red-500 text-sm">{passwordError}</p>
+                <p className="text-red-500 text-xs">{passwordError}</p>
               )}
             </div>
           </CardContent>

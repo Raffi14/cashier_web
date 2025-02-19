@@ -44,10 +44,6 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<{
-    id: number;
-    open: boolean;
-  }>({ id: 0, open: false });
 
   const fetchcustomers = async () => {
     const response = await httpGet("/api/customer");
@@ -224,48 +220,78 @@ export default function CustomersPage() {
         type="pelanggan"
       />
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
-          <DialogHeader>
-            <DialogTitle>
-              {isEditing ? "Edit pelanggan" : "Tambah pelanggan"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Nama Pelanggan"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <Input
-              placeholder="Alamat"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-            />
-            <div className="flex flex-col">
-              <Input
-                placeholder="Nomer Telepon"
-                value={rawNumber}
-                onChange={handleInputChange}
-                maxLength={17}
-                required
-                className="mb-0"
-              />
-              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading
-                ? "Menyimpan..."
-                : isEditing
-                ? "Simpan Perubahan"
-                : "Tambah"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <DialogContent
+    aria-describedby="dialog-description"
+    className="w-full max-w-md p-6"
+  >
+    <DialogHeader>
+      <DialogTitle>
+        {isEditing ? "Edit pelanggan" : "Tambah pelanggan"}
+      </DialogTitle>
+    </DialogHeader>
+      <div className="space-y-1">
+        <label
+          htmlFor="customerName"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Nama Pelanggan
+        </label>
+        <Input
+          id="customerName"
+          placeholder="Nama Pelanggan"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="w-full"
+        />
+      </div>
+      <div className="space-y-1">
+        <label
+          htmlFor="customerAddress"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Alamat
+        </label>
+        <Input
+          id="customerAddress"
+          placeholder="Alamat"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          required
+          className="w-full"
+        />
+      </div>
+      <div className="space-y-1">
+        <label
+          htmlFor="customerPhone"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Nomer Telepon
+        </label>
+        <Input
+          id="customerPhone"
+          placeholder="Nomer Telepon"
+          value={rawNumber}
+          onChange={handleInputChange}
+          maxLength={17}
+          required
+          className="w-full"
+        />
+        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      </div>
+
+      <DialogFooter>
+        <Button type="submit" disabled={loading} onClick={handleSubmit} className="w-full">
+          {loading
+            ? "Menyimpan..."
+            : isEditing
+            ? "Simpan Perubahan"
+            : "Tambah"}
+        </Button>
+      </DialogFooter>
+  </DialogContent>
+</Dialog>
+
       {/* <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
         <AlertDialogContent>
           <AlertDialogHeader>

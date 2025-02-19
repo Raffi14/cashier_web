@@ -65,6 +65,7 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [transactionSuccess, setTransactionSuccess] = useState(false);
+  const [rawNumber, setRawNumber] = useState("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     name: "",
@@ -74,9 +75,41 @@ export default function TransactionsPage() {
   const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState("");
   const [productStock, setProductStock] = useState<{ [key: number]: number }>(
     Object.fromEntries(products.map((product) => [product.id, product.stock]))
   );
+
+  const formatPhoneNumber = (phone: string, isDeleting: boolean) => {
+    let cleaned = phone.replace(/\D/g, "");
+
+    if (cleaned.startsWith("62")) {
+      cleaned = cleaned.slice(2);
+    } else if (cleaned.startsWith("0")) {
+      cleaned = cleaned.slice(1);
+    }
+
+    let formatted = `+62 ${cleaned}`;
+    if (!isDeleting) {
+      formatted = `+62 ${cleaned
+        .replace(/(\d{3})(\d{4})(\d+)?/, "$1-$2-$3")
+        .trim()}`;
+    }
+
+    return { formatted, cleaned: "0" + cleaned };
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value.replace("+62 ", "");
+    const isDeleting =
+      e.nativeEvent instanceof InputEvent &&
+      e.nativeEvent.inputType === "deleteContentBackward";
+
+    const { formatted, cleaned } = formatPhoneNumber(input, isDeleting);
+
+    setRawNumber(formatted);
+    newCustomer.phone_number = cleaned;
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -118,6 +151,12 @@ export default function TransactionsPage() {
   const handleSubmit = async () => {
     if (!newCustomer.name || !newCustomer.address || !newCustomer.phone_number)
       return;
+    if (newCustomer.phone_number.length < 12) {
+      setError("Nomor telepon harus minimal 11 digit!");
+      return;
+    } else {
+      setError("");
+    }
     try {
       const response = await httpPost("/api/customer", newCustomer);
       const responseData = await response.json();
@@ -259,7 +298,7 @@ export default function TransactionsPage() {
         <div className="flex-1 pb-12">
           <h2 className="text-xl font-bold mb-4">Produk</h2>
           <Input
-            placeholder="🔍 Cari produk..."
+            placeholder="Cari produk..."
             value={searchProduct}
             onChange={(e) => setSearchProduct(e.target.value)}
             className="mb-4"
@@ -313,7 +352,7 @@ export default function TransactionsPage() {
           <div className="relative">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="🔍 Cari pelanggan..."
+                placeholder="Cari pelanggan..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -424,25 +463,29 @@ export default function TransactionsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Konfirmasi Pembelian</AlertDialogTitle>
-            <AlertDialogDescription>
-              <span>pelanggan: {selectedCustomerName}</span>
-              <br />
-              <span>Total: Rp {formatPrice(total)}</span>
-              <br />
-              <span>Produk yang dibeli:</span>
-              <br />
-              {cart.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <span>
-                    {item.product_name} x {item.quantity} - Rp{" "}
-                    {formatPrice(subTotal[item.id])}
-                  </span>
-                  {index !== cart.length - 1 && <br />}
-                </React.Fragment>
-              ))}
+            <AlertDialogDescription asChild>
+              <div>
+                <div className="mb-2">
+                  <strong>Pelanggan:</strong> {selectedCustomerName}
+                </div>
+                <div className="mb-2">
+                  <strong>Total:</strong> Rp {formatPrice(total)}
+                </div>
+                <div className="mb-2">
+                  <strong>Produk yang dibeli:</strong>
+                </div>
+                <ul className="list-disc list-inside">
+                  {cart.map((item) => (
+                    <li key={item.id}>
+                      {item.product_name} x {item.quantity} - Rp{" "}
+                      {formatPrice(subTotal[item.id])}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="mt-4 flex justify-end space-x-2">
             <AlertDialogAction onClick={() => setConfirmDialogOpen(false)}>
               Batal
             </AlertDialogAction>
@@ -452,6 +495,7 @@ export default function TransactionsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
       <AlertDialog open={customerDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -475,14 +519,17 @@ export default function TransactionsPage() {
               setNewCustomer({ ...newCustomer, address: e.target.value })
             }
           />
-          <Input
-            placeholder="Nomor Telepon"
-            value={newCustomer.phone_number}
-            onChange={(e) =>
-              setNewCustomer({ ...newCustomer, phone_number: e.target.value })
-            }
-            required
-          />
+          <div className="flex flex-col">
+            <Input
+              placeholder="Nomer Telepon"
+              value={rawNumber}
+              onChange={handleInputChange}
+              maxLength={17}
+              required
+              className="mb-0"
+            />
+            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          </div>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setCustomerDialogOpen(false)}>
               Batal

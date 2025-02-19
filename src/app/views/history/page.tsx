@@ -143,8 +143,18 @@ export default function HistoryTransaksi() {
         ],
       ],
       startY: 20,
-      styles: { fontSize: 12, cellPadding: 3 },
-      headStyles: { fillColor: [0, 112, 192], textColor: 255 },
+      styles: {
+        fontSize: 12,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      headStyles: {
+        fillColor: [0, 112, 192],
+        textColor: 255,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
     });
     const finalY = (doc as any).lastAutoTable.finalY || 30;
     doc.autoTable({
@@ -152,67 +162,81 @@ export default function HistoryTransaksi() {
       body: transaction.items.map((item) => [
         item.product_name,
         item.quantity,
-        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
-          "id-ID"
-        )}`,
+        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString("id-ID")}`,
         `Rp ${item.sub_total.toLocaleString("id-ID")}`,
       ]),
       startY: finalY + 10,
-      styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [0, 112, 192], textColor: 255 },
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      headStyles: {
+        fillColor: [0, 112, 192],
+        textColor: 255,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
     });
-
     doc.save(`Transaksi_${transaction.id}.pdf`);
-  };
+  };  
 
   const exportToPDF = () => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
     doc.setFontSize(14);
     doc.text("Laporan Transaksi", 14, 10);
-
-    doc.autoTable({
-      head: [
-        [
-          "ID",
-          "Pelanggan",
-          "Total Harga",
-          "Tanggal",
-          "Produk",
-          "Qty",
-          "Harga Satuan",
-          "Subtotal",
-        ],
+  
+    const head = [
+      [
+        "ID",
+        "Pelanggan",
+        "Total Harga",
+        "Tanggal",
+        "Produk",
+        "Qty",
+        "Harga Satuan",
+        "Subtotal",
       ],
-      body: filteredTransactions.flatMap((trx) =>
-        trx.items.map((item, index) => [
-          index === 0 ? trx.id : "",
-          index === 0 ? trx.customer_name : "",
-          index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "",
-          index === 0
-            ? new Date(trx.sale_date).toLocaleDateString("id-ID")
-            : "",
-          item.product_name,
-          item.quantity,
-          `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
-            "id-ID"
-          )}`,
-          `Rp ${item.sub_total.toLocaleString("id-ID")}`,
-        ])
-      ),
+    ];
+  
+    const body = filteredTransactions.flatMap((trx) =>
+      trx.items.map((item, index) => [
+        index === 0 ? trx.id : "",
+        index === 0 ? trx.customer_name : "",
+        index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "",
+        index === 0 ? new Date(trx.sale_date).toLocaleDateString("id-ID") : "",
+        item.product_name,
+        item.quantity,
+        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString("id-ID")}`,
+        `Rp ${item.sub_total.toLocaleString("id-ID")}`,
+      ])
+    );
+  
+    doc.autoTable({
+      head,
+      body,
       startY: 20,
-      styles: { fontSize: 10, cellPadding: 3 },
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,  
+      },
       headStyles: {
         fillColor: [0, 112, 192],
         textColor: 255,
         fontStyle: "bold",
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
       },
       alternateRowStyles: { fillColor: [240, 240, 240] },
       columnStyles: { 4: { cellWidth: "auto" } },
       theme: "striped",
     });
-
     doc.save("Laporan_Transaksi.pdf");
   };
+  
 
   const columns: ColumnDef<Transaction>[] = [
     {

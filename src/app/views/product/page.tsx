@@ -261,24 +261,44 @@ export default function ProductsPage() {
         type="produk"
       />
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
+        <DialogContent
+          aria-describedby="dialog-description"
+          className="w-full max-w-md p-6"
+        >
           <DialogHeader>
             <DialogTitle>
               {isEditing ? "Edit Produk" : "Tambah Produk"}
             </DialogTitle>
           </DialogHeader>
-          <div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nama Produk
+            </label>
             <Input
+              id="productName"
               placeholder="Nama Produk"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               disabled={isEditing}
+              className="w-full"
             />
-            <div className="flex items-center px-3 py-2">
-              <span className="text-gray-500 mb-1">Rp</span>
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productPrice"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Harga
+            </label>
+            <div className="flex items-center border rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+              <span className="text-gray-500">Rp</span>
               <Input
-                className="border focus:ring-0 ml-2 flex-1"
+                id="productPrice"
+                className="ml-2 flex-1 border-0 focus:ring-0"
                 placeholder="Harga"
                 type="text"
                 value={formattedPrice}
@@ -286,16 +306,31 @@ export default function ProductsPage() {
                 required
               />
             </div>
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productStock"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Stok
+            </label>
             <Input
+              id="productStock"
               placeholder="Stok"
               type="number"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
               required
+              className="w-full"
             />
           </div>
           <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="w-full"
+            >
               {loading
                 ? "Menyimpan..."
                 : isEditing
@@ -305,6 +340,7 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <AlertDialog
         open={confirmDelete.open}
         onOpenChange={(open) =>

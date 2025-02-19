@@ -205,39 +205,91 @@ export default function UsersPage() {
               {isEditing ? "Edit Pengguna" : "Tambah Pengguna"}
             </DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4">
-            <Input
-              placeholder="Nama Lengkap"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-            <Select onValueChange={setRole} value={role}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="petugas">Petugas</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="Nama Pengguna"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <Input
-              placeholder="Password"
-              onChange={handlePasswordChange}
-              required
-            />
-            {passwordError && (
-              <p className="text-red-500 text-sm">{passwordError}</p>
-            )}
+            {/* Nama Lengkap */}
+            <div className="space-y-1">
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nama Lengkap
+              </label>
+              <Input
+                id="fullName"
+                placeholder="Nama Lengkap"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            {/* Nama Pengguna */}
+            <div className="space-y-1">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nama Pengguna
+              </label>
+              <Input
+                id="username"
+                placeholder="Nama Pengguna"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            {/* Role */}
+            <div className="space-y-1">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Role
+              </label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger id="role" className="w-full">
+                  <SelectValue placeholder="Pilih role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="petugas">Petugas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                onChange={handlePasswordChange}
+                required
+                className="w-full"
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm">{passwordError}</p>
+              )}
+            </div>
           </div>
+
           <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full"
+            >
               {loading
                 ? "Menyimpan..."
                 : isEditing
@@ -246,6 +298,7 @@ export default function UsersPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
+
         <AlertDialog
           open={confirmDelete.open}
           onOpenChange={(open) =>
@@ -276,7 +329,7 @@ export default function UsersPage() {
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogTitle>Info</AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
