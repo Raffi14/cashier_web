@@ -10,6 +10,7 @@ import { Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 type Product = {
   id: number;
@@ -48,6 +49,7 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [transactionSuccess, setTransactionSuccess] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [productStock, setProductStock] = useState<{ [key: number]: number }>(
     Object.fromEntries(products.map((product) => [product.id, product.stock]))
   );
@@ -149,6 +151,8 @@ export default function TransactionsPage() {
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  const selectedCustomerName = customers.find(customer => customer.id === Number(selectedCustomer))?.name || "Pilih pelanggan";
 
   const handleCheckout = async () => {
     if (!selectedCustomer || cart.length === 0) return;
@@ -186,8 +190,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Transaksi</h1>
+    <div className="p-4 pt-2 w-full mx-auto h-screen overflow-hidden scrollbar-hide">
       <div className="flex max-h-full gap-6 h-full pb-28">
       <div className="flex-1 pb-12">
           <h2 className="text-xl font-bold mb-4">Produk</h2>
@@ -292,7 +295,7 @@ export default function TransactionsPage() {
           </Table>
           </div>
           <div className="mt-4 text-xl font-bold">Total: Rp {formatPrice(total)}</div>
-          <Button className="mt-4 w-full" onClick={handleCheckout} disabled={!selectedCustomer || cart.length === 0}>
+          <Button className="mt-4 w-full" onClick={() => setConfirmDialogOpen(true)} disabled={!selectedCustomer || cart.length === 0}>
             {loading ? "Memproses..." : "Selesaikan pembelian"}
           </Button>
         </div>
@@ -310,6 +313,37 @@ export default function TransactionsPage() {
                 Lihat Riwayat
               </AlertDialogAction>
             )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Pembelian</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span>pelanggan: {selectedCustomerName}</span>
+              <br />
+              <span>Total: Rp {formatPrice(total)}</span>
+              <br />
+              <span>Produk yang dibeli:</span>
+              <br />
+              {cart.map((item, index) => (
+                <React.Fragment key={item.id}>
+                  <span>
+                    {item.product_name} x {item.quantity} - Rp {formatPrice(subTotal[item.id])}
+                  </span>
+                  {index !== cart.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setConfirmDialogOpen(false)}>
+              Batal
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleCheckout}>
+              Konfirmasi
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

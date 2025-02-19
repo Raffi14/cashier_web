@@ -143,9 +143,20 @@ export default function ProductsPage() {
         }).format(price);
 
         return <div className="font-medium">{formatted}</div>
+      },
     },
-  },
-    { accessorKey: "stock", header: "Stok" },
+    {
+      accessorKey: "stock",
+      header: "Stok",
+      cell: ({ cell }) => {
+        const stock = cell.getValue<number>();
+        return (
+          <span className={stock === 0 ? "text-red-500" : ""}>
+            {stock}
+          </span>
+        );
+      },
+    },    
     {
       id: "actions",
       header: "Aksi",
@@ -163,8 +174,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Data Produk</h1>
+    <div className="p-4 w-full mx-auto h-screen overflow-auto scrollbar-hide">
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
@@ -198,9 +208,19 @@ export default function ProductsPage() {
           <DialogHeader>
             <DialogTitle>{isEditing ? "Edit Produk" : "Tambah Produk"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div>
             <Input placeholder="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input placeholder="Harga" type="text" value={formattedPrice} onChange={(e) => handleFormatted(e.target.value)} required />
+            <div className="flex items-center px-3 py-2">
+              <span className="text-gray-500 mb-1">Rp</span>
+              <Input
+                className="border focus:ring-0 ml-2 flex-1"
+                placeholder="Harga"
+                type="text"
+                value={formattedPrice}
+                onChange={(e) => handleFormatted(e.target.value)}
+                required
+              />
+            </div>
             <Input placeholder="Stok" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
           </div>
           <DialogFooter>

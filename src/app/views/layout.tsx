@@ -2,18 +2,40 @@
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
-import { useState } from "react";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon } from "lucide-react"
+import { useState, useEffect } from "react"
+import Cookies from "js-cookie"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const token = Cookies.get("token");
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const roleFromCookie = Cookies.get("role");
+    if (roleFromCookie) {
+      setRole(roleFromCookie);
+    }
+  }, []);
+
   return (
     <SidebarProvider>
-      <AppSidebar className="w-64"/>
-      <div className="flex-1 relative">
-        <SidebarTrigger className="absolute top-5 left-[-15px] z-50 p-2 bg-gray-800 text-white rounded-md">
-          <MenuIcon />
-        </SidebarTrigger>
-        {children}
+      <div className="flex h-screen w-full relative">
+        <AppSidebar className="w-64 transition-all duration-300" />
+        <div className="flex-1 flex flex-col">
+          <header className="flex items-center justify-between bg-white dark:bg-gray-800 border-b p-4 fixed top-0 left-0 right-0 z-50">
+            <div className="flex items-center">
+              <SidebarTrigger className="mr-4 p-2 absolute bg-gray-800 text-white rounded-md">
+                <MenuIcon />
+              </SidebarTrigger>
+                <span className="text-gray-900 ml-12 dark:text-gray-100 text-lg font-bold">
+                  Hii {role} 👋
+                </span>
+            </div>
+          </header>
+          <main className="flex-1 mt-16 overflow-hidden">
+            {children}
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   )

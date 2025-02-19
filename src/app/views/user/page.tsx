@@ -156,8 +156,7 @@ export default function UsersPage() {
   ];
 
   return (
-    <div className="p-6 w-full mx-auto h-screen overflow-hidden">
-      <h1 className="text-3xl font-bold mb-6 border-b-2">Data Pengguna</h1>
+    <div className="p-4 w-full mx-auto h-screen overflow-auto scrollbar-hide">
       <DataTable columns={columns} data={users} onAdd={openModal} type="user"/>
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
     <DialogContent aria-describedby="input" className="w-full max-w-md p-6">

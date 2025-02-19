@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         .limit(1).execute();
         
         if (!user[0]) {
-          return NextResponse.json({error: "username salah"}, {status: 404})
+          return NextResponse.json({error: "pengguna tidak ditemukan"}, {status: 404})
         }
         
         const passwordMatch = await argon2.verify(user[0].password, password);
