@@ -17,6 +17,7 @@ type Product = {
   product_name: string;
   price: number;
   stock: number;
+  is_active: "active" | "inactive";
 };
 
 type CartItem = {
@@ -152,14 +153,14 @@ export default function TransactionsPage() {
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const selectedCustomerName = customers.find(customer => customer.id === Number(selectedCustomer))?.name || "Pilih pelanggan";
+  const selectedCustomerName = customers.find(customer => customer.id === Number(selectedCustomer))?.name || "pelanggan";
 
   const handleCheckout = async () => {
-    if (!selectedCustomer || cart.length === 0) return;
+    if (cart.length === 0) return;
     setLoading(true);
 
     const payload = {
-      customer_id: Number(selectedCustomer),
+      customer_id: selectedCustomer ? Number(selectedCustomer) : null,
       total_price: total,
       sale_date: new Date().toISOString().split("T")[0],
       items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity, sub_total: subTotal[item.id] })),
@@ -295,7 +296,7 @@ export default function TransactionsPage() {
           </Table>
           </div>
           <div className="mt-4 text-xl font-bold">Total: Rp {formatPrice(total)}</div>
-          <Button className="mt-4 w-full" onClick={() => setConfirmDialogOpen(true)} disabled={!selectedCustomer || cart.length === 0}>
+          <Button className="mt-4 w-full" onClick={() => setConfirmDialogOpen(true)} disabled={cart.length === 0}>
             {loading ? "Memproses..." : "Selesaikan pembelian"}
           </Button>
         </div>

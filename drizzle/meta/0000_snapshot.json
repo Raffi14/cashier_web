@@ -1,5 +1,5 @@
 {
-  "id": "efec81a9-670c-498b-8fa4-bbd5607c181d",
+  "id": "af663d02-c787-4f68-9779-4067dc948c3f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -68,6 +68,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "is_active",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -98,7 +105,7 @@
           "name": "customer_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "total_price": {
           "name": "total_price",
@@ -236,7 +243,7 @@
         },
         "password": {
           "name": "password",
-          "type": "varchar(255)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -264,6 +271,14 @@
     }
   },
   "enums": {
+    "public.is_active": {
+      "name": "is_active",
+      "schema": "public",
+      "values": [
+        "active",
+        "inactive"
+      ]
+    },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",

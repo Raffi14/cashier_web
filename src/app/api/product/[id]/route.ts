@@ -1,7 +1,7 @@
 import { Auth } from "@/lib/auth";
 import { db } from "@/lib/database";
 import { products } from "@/models/product";
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
@@ -17,12 +17,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
          .from(products)
          .where(eq(products.id, id))
          .limit(1).execute();
- 
-       if (getProduk.length == 0) {
-         return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
-       }
- 
-      await db.update(products).set({ product_name, price, stock }).where(eq(products.id, id)).execute();
+
+         if (getProduk.length == 0) {
+           return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
+          }
+          
+        await db.update(products).set({ product_name, price, stock }).where(eq(products.id, id)).execute();
       return NextResponse.json({message: "success"}, {status: 200});
   } catch (error) {
     return NextResponse.json({error: "Internal server error"}, {status: 500});
@@ -45,14 +45,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
          const getProduk = await db
            .select()
            .from(products)
-           .where(eq(products.id, id))
+           .where(and(eq(products.id, id), eq(products.is_active, "active")))
            .limit(1).execute();
    
          if (getProduk.length == 0) {
            return NextResponse.json({error: "Data produk tidak ada"}, {status: 409})
          }
    
-        await db.delete(products).where(eq(products.id, id)).execute();
+        await db.update(products).set({is_active: "inactive"}).where(eq(products.id, id)).execute();
         return NextResponse.json({message: "success"}, {status: 200});
     } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});

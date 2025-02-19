@@ -1,3 +1,4 @@
+CREATE TYPE "public"."is_active" AS ENUM('active', 'inactive');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('admin', 'petugas');--> statement-breakpoint
 CREATE TABLE "customer" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -10,13 +11,14 @@ CREATE TABLE "product" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"product_name" varchar(255) NOT NULL,
 	"price" integer NOT NULL,
-	"stock" integer NOT NULL
+	"stock" integer NOT NULL,
+	"is_active" "is_active" NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "sale" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"customer_id" integer NOT NULL,
+	"customer_id" integer,
 	"total_price" integer NOT NULL,
 	"sale_date" date NOT NULL
 );
@@ -32,7 +34,7 @@ CREATE TABLE "sale_detail" (
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"username" varchar(255) NOT NULL,
-	"password" varchar(255) NOT NULL,
+	"password" varchar NOT NULL,
 	"full_name" varchar(50) NOT NULL,
 	"role" "user_role" NOT NULL
 );
