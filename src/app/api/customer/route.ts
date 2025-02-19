@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
        }
  
       await db.insert(customers).values({ name, address, phone_number}).execute();
-      return NextResponse.json({message: "success"}, {status: 200});
+      return NextResponse.json({message: "Data berhasil ditambahkan"}, {status: 200});
   } catch (error) {
       return NextResponse.json({error: "Internal server error"}, {status: 500});
   }

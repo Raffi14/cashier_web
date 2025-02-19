@@ -69,9 +69,9 @@ export async function runMigrations() {
       })
 
       await db.query(
-        `INSERT INTO users (username, password, full_name, role) 
-        VALUES ($1, $2, $3, $4)`,
-        [username, hash, fullName, 'admin']
+        `INSERT INTO users (username, password, full_name, role, is_active) 
+        VALUES ($1, $2, $3, $4, $5)`,
+        [username, hash, fullName, 'admin', 'active']
       );
       console.log('✅ Default user created');
     }

@@ -51,6 +51,10 @@ export default function TransactionsPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [transactionSuccess, setTransactionSuccess] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({ name: "", address: "", phone_number: "" });
+  const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [productStock, setProductStock] = useState<{ [key: number]: number }>(
     Object.fromEntries(products.map((product) => [product.id, product.stock]))
   );
@@ -89,6 +93,28 @@ export default function TransactionsPage() {
     const data = await response.json();
     setCustomers(data.data || []);
   };
+
+    const handleSubmit = async () => {
+      if (!newCustomer.name || !newCustomer.address || !newCustomer.phone_number) return;
+      try {
+        const response = await httpPost('/api/customer', newCustomer);
+        const responseData = await response.json();
+        
+        if (!response.ok) {
+          setErrorMessage(responseData.error);
+          setErrorDialogOpen(true);
+          return;
+        }
+        
+        fetchCustomers();
+        setCustomerDialogOpen(false)
+        setErrorMessage(responseData.message);
+        setErrorDialogOpen(true);
+        setNewCustomer({name: "", address: "", phone_number: ""});
+      } catch (error) {
+        console.error("Error saving user:", error);
+      }
+    };
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -228,17 +254,25 @@ export default function TransactionsPage() {
         <div className="w-1/3 flex flex-col h-full">
           <h2 className="text-xl font-bold mb-4">🛒 Keranjang</h2>
           <div className="relative">
-            <Input
-              placeholder="🔍 Cari pelanggan..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 50)}
-              className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-1 focus:ring-gray-400"
-            />
+          <div className="flex items-center gap-2">
+              <Input
+                placeholder="🔍 Cari pelanggan..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 50)}
+                className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-1 focus:ring-gray-400"
+              />
+            <button 
+              className="h-10 w-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition-all"
+              onClick={() => setCustomerDialogOpen(true)}
+            >
+              <span className="text-xl font-semibold">+</span>
+            </button>
+            </div>
             {showDropdown && filteredCustomers.length > 0 && (
               <div className="absolute w-full bg-white shadow-lg rounded-md mt-1 z-10 max-h-40 overflow-auto scrollbar-hide">
                 {filteredCustomers.map((customer) => (
@@ -252,6 +286,7 @@ export default function TransactionsPage() {
                     }}
                   >
                     {customer.name}
+                    
                   </div>
                 ))}
               </div>
@@ -345,6 +380,48 @@ export default function TransactionsPage() {
             <AlertDialogAction onClick={handleCheckout}>
               Konfirmasi
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={customerDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Tambah Pelanggan</AlertDialogTitle>
+          <AlertDialogDescription>
+            Isi informasi pelanggan baru.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <Input
+          placeholder="Nama Pelanggan"
+          value={newCustomer.name}
+          onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+          required
+        />
+        <Input
+          placeholder="Alamat"
+          value={newCustomer.address}
+          onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+        />
+        <Input
+          placeholder="Nomor Telepon"
+          value={newCustomer.phone_number}
+          onChange={(e) => setNewCustomer({ ...newCustomer, phone_number: e.target.value })}
+          required
+        />
+        <AlertDialogFooter>
+          <AlertDialogAction onClick={() => setCustomerDialogOpen(false)}>Batal</AlertDialogAction>
+          <AlertDialogAction onClick={handleSubmit}>Tambah</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+          <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Info</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Tutup</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
