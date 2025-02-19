@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { MenuIcon } from "lucide-react"
-import { useState, useEffect } from "react"
-import Cookies from "js-cookie"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { MenuIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const token = Cookies.get("token");
   const [role, setRole] = useState("");
 
   useEffect(() => {
@@ -27,16 +26,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <SidebarTrigger className="mr-4 p-2 absolute bg-gray-800 text-white rounded-md">
                 <MenuIcon />
               </SidebarTrigger>
-                <span className="text-gray-900 ml-12 dark:text-gray-100 text-lg font-bold">
-                  Hii {role} 👋
-                </span>
+              <span className="text-gray-900 ml-12 dark:text-gray-100 text-lg font-bold">
+                Hii {role} 👋
+              </span>
             </div>
           </header>
-          <main className="flex-1 mt-16 overflow-hidden">
-            {children}
-          </main>
+          <main className="flex-1 mt-16 overflow-hidden">{children}</main>
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { BarChart, Store } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { BarChart, Store } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function Home() {
             </div>
             <div className="flex items-center">
               <Button
-                onClick={() => router.push('/login')}
+                onClick={() => router.push("/login")}
                 className="bg-primary hover:bg-primary/90 transition-colors"
               >
                 Login
@@ -45,10 +45,10 @@ export default function Home() {
             </div>
             <BarChart className="h-64 w-64 text-primary sm:block mx-auto transform transition-transform hover:scale-105" />
             <p className="mt-3 max-w-2xl mx-auto text-base text-muted-foreground sm:text-lg md:mt-5 md:text-xl">
-              Simplify your business operations with our advanced point of sale system. 
-              Designed for speed and ease of use, our solution streamlines transactions
-              and helps you manage your business more efficiently. Reliable, secure, 
-              and ready to support your growth.
+              Simplify your business operations with our advanced point of sale
+              system. Designed for speed and ease of use, our solution
+              streamlines transactions and helps you manage your business more
+              efficiently. Reliable, secure, and ready to support your growth.
             </p>
           </div>
         </div>

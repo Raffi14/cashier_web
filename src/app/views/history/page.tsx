@@ -2,15 +2,38 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatPrice } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table-v2";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -33,8 +56,11 @@ type Transaction = {
 
 export default function HistoryTransaksi() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -72,25 +98,26 @@ export default function HistoryTransaksi() {
     if (quickFilter) {
       const today = new Date();
       const startOfWeek = new Date(today);
-      const dayOfWeek = today.getDay(); 
+      const dayOfWeek = today.getDay();
       const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
       startOfWeek.setDate(today.getDate() + diffToMonday);
       startOfWeek.setHours(0, 0, 0, 0);
-  
+
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-    
+
       filtered = filtered.filter((trx) => {
         const trxDate = new Date(trx.sale_date);
-    
+
         if (quickFilter === "today") {
           return trxDate.toDateString() === today.toDateString();
         } else if (quickFilter === "week") {
           return trxDate >= startOfWeek && trxDate <= endOfWeek;
         } else if (quickFilter === "month") {
           return (
-            trxDate.getMonth() === today.getMonth() && trxDate.getFullYear() === today.getFullYear()
+            trxDate.getMonth() === today.getMonth() &&
+            trxDate.getFullYear() === today.getFullYear()
           );
         } else if (quickFilter === "year") {
           return trxDate.getFullYear() === today.getFullYear();
@@ -98,7 +125,6 @@ export default function HistoryTransaksi() {
         return true;
       });
     }
-    
 
     setFilteredTransactions(filtered);
   }, [startDate, endDate, transactions, searchQuery, quickFilter]);
@@ -109,11 +135,13 @@ export default function HistoryTransaksi() {
     doc.text(`Detail Transaksi #${transaction.id}`, 14, 10);
     doc.autoTable({
       head: [["Pelanggan", "Total Harga", "Tanggal"]],
-      body: [[
-        transaction.customer_name,
-        `Rp ${transaction.total_price.toLocaleString("id-ID")}`,
-        new Date(transaction.sale_date).toLocaleDateString("id-ID"),
-      ]],
+      body: [
+        [
+          transaction.customer_name,
+          `Rp ${transaction.total_price.toLocaleString("id-ID")}`,
+          new Date(transaction.sale_date).toLocaleDateString("id-ID"),
+        ],
+      ],
       startY: 20,
       styles: { fontSize: 12, cellPadding: 3 },
       headStyles: { fillColor: [0, 112, 192], textColor: 255 },
@@ -121,65 +149,90 @@ export default function HistoryTransaksi() {
     const finalY = (doc as any).lastAutoTable.finalY || 30;
     doc.autoTable({
       head: [["Produk", "Qty", "Harga Satuan", "Subtotal"]],
-      body: transaction.items.map(item => [
+      body: transaction.items.map((item) => [
         item.product_name,
         item.quantity,
-        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString("id-ID")}`,
+        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
+          "id-ID"
+        )}`,
         `Rp ${item.sub_total.toLocaleString("id-ID")}`,
       ]),
       startY: finalY + 10,
       styles: { fontSize: 10, cellPadding: 3 },
       headStyles: { fillColor: [0, 112, 192], textColor: 255 },
     });
-  
+
     doc.save(`Transaksi_${transaction.id}.pdf`);
   };
-  
-  
+
   const exportToPDF = () => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
     doc.setFontSize(14);
     doc.text("Laporan Transaksi", 14, 10);
-  
+
     doc.autoTable({
-      head: [["ID", "Pelanggan", "Total Harga", "Tanggal", "Produk", "Qty", "Harga Satuan", "Subtotal"]],
-      body: filteredTransactions.flatMap(trx => 
+      head: [
+        [
+          "ID",
+          "Pelanggan",
+          "Total Harga",
+          "Tanggal",
+          "Produk",
+          "Qty",
+          "Harga Satuan",
+          "Subtotal",
+        ],
+      ],
+      body: filteredTransactions.flatMap((trx) =>
         trx.items.map((item, index) => [
-          index === 0 ? trx.id : "", 
-          index === 0 ? trx.customer_name : "", 
-          index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "", 
-          index === 0 ? new Date(trx.sale_date).toLocaleDateString("id-ID") : "", 
+          index === 0 ? trx.id : "",
+          index === 0 ? trx.customer_name : "",
+          index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "",
+          index === 0
+            ? new Date(trx.sale_date).toLocaleDateString("id-ID")
+            : "",
           item.product_name,
           item.quantity,
-          `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString("id-ID")}`, 
-          `Rp ${item.sub_total.toLocaleString("id-ID")}`
+          `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
+            "id-ID"
+          )}`,
+          `Rp ${item.sub_total.toLocaleString("id-ID")}`,
         ])
       ),
       startY: 20,
       styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [0, 112, 192], textColor: 255, fontStyle: "bold" },
+      headStyles: {
+        fillColor: [0, 112, 192],
+        textColor: 255,
+        fontStyle: "bold",
+      },
       alternateRowStyles: { fillColor: [240, 240, 240] },
       columnStyles: { 4: { cellWidth: "auto" } },
       theme: "striped",
     });
-  
+
     doc.save("Laporan_Transaksi.pdf");
-  };  
+  };
 
   const columns: ColumnDef<Transaction>[] = [
-    { accessorKey: "id", header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Id
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    {
+      accessorKey: "id",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Id
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
     },
     { accessorKey: "cashier_name", header: "Kasir" },
     { accessorKey: "customer_name", header: "Pelanggan" },
-    { accessorKey: "total_price", header: "Total", cell: ({ row }) => {
+    {
+      accessorKey: "total_price",
+      header: "Total",
+      cell: ({ row }) => {
         const price = parseFloat(row.getValue("total_price"));
         const formatted = new Intl.NumberFormat("id-ID", {
           style: "currency",
@@ -188,10 +241,14 @@ export default function HistoryTransaksi() {
           maximumFractionDigits: 0,
         }).format(price);
 
-        return <div className="font-medium">{formatted}</div>
-      }
+        return <div className="font-medium">{formatted}</div>;
+      },
     },
-    { accessorKey: "sale_date", header: "Tanggal", cell: ({ row }) => new Date(row.original.sale_date).toLocaleDateString() },
+    {
+      accessorKey: "sale_date",
+      header: "Tanggal",
+      cell: ({ row }) => new Date(row.original.sale_date).toLocaleDateString(),
+    },
     {
       id: "actions",
       header: "Aksi",
@@ -201,8 +258,14 @@ export default function HistoryTransaksi() {
             <MoreHorizontal className="w-5 h-5 cursor-pointer text-gray-600" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="shadow-lg border border-gray-200 rounded-lg">
-            <DropdownMenuItem onClick={() => setSelectedTransaction(row.original)}>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => printTransaction(row.original)}>Export PDF</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setSelectedTransaction(row.original)}
+            >
+              Lihat Detail
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => printTransaction(row.original)}>
+              Export PDF
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -212,10 +275,26 @@ export default function HistoryTransaksi() {
   return (
     <div className="p-4 w-full mx-auto h-screen overflow-auto scrollbar-hide">
       <div className="flex gap-6 mb-2">
-        <Input type="text" placeholder="Cari nama pelanggan..." className="w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        <Input type="date" className="w-36" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="Cari nama pelanggan..."
+          className="w-full"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <Input
+          type="date"
+          className="w-36"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
         <p className="pt-2">s/d</p>
-        <Input type="date" className="w-36" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+        <Input
+          type="date"
+          className="w-36"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
         <Select value={quickFilter} onValueChange={setQuickFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Pilih" />
@@ -230,44 +309,79 @@ export default function HistoryTransaksi() {
         <Button onClick={exportToPDF}>Export PDF</Button>
       </div>
       <DataTable columns={columns} data={filteredTransactions} />
-      <Dialog open={!!selectedTransaction} onOpenChange={() => setSelectedTransaction(null)}>
-          <DialogContent aria-describedby="Detail" className="max-w-lg bg-white rounded-lg shadow-lg">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-semibold text-gray-800">Detail Transaksi</DialogTitle>
-            </DialogHeader>
-            {selectedTransaction && (
-              <div>
-                <div className="border-b border-gray-200 pb-4 mb-4">
-                  <p className="text-gray-700"><strong>ID:</strong> {selectedTransaction.id}</p>
-                  <p className="text-gray-700"><strong>Customer:</strong> {selectedTransaction.customer_name}</p>
-                  <p className="text-gray-700"><strong>Total Harga:</strong> {formatPrice(selectedTransaction.total_price)}</p>
-                  <p className="text-gray-700"><strong>Tanggal:</strong> {new Date(selectedTransaction.sale_date).toLocaleDateString()}</p>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Produk</h3>
-                <div className="overflow-x-auto">
-                  <Table className="w-full border border-gray-200 rounded-lg">
-                    <TableHeader className="bg-gray-100">
-                      <TableRow>
-                        <TableHead className="px-4 py-2 text-left">Nama Produk</TableHead>
-                        <TableHead className="px-4 py-2 text-center">Kuantitas</TableHead>
-                        <TableHead className="px-4 py-2 text-right">Subtotal</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedTransaction.items.map((item, index) => (
-                        <TableRow key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                          <TableCell className="px-4 py-2">{item.product_name}</TableCell>
-                          <TableCell className="px-4 py-2 text-center">{item.quantity}</TableCell>
-                          <TableCell className="px-4 py-2 text-right">{formatPrice(item.sub_total)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+      <Dialog
+        open={!!selectedTransaction}
+        onOpenChange={() => setSelectedTransaction(null)}
+      >
+        <DialogContent
+          aria-describedby="Detail"
+          className="max-w-lg bg-white rounded-lg shadow-lg"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-gray-800">
+              Detail Transaksi
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTransaction && (
+            <div>
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <p className="text-gray-700">
+                  <strong>ID:</strong> {selectedTransaction.id}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Customer:</strong> {selectedTransaction.customer_name}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Total Harga:</strong>{" "}
+                  {formatPrice(selectedTransaction.total_price)}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tanggal:</strong>{" "}
+                  {new Date(selectedTransaction.sale_date).toLocaleDateString()}
+                </p>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Produk
+              </h3>
+              <div className="overflow-x-auto">
+                <Table className="w-full border border-gray-200 rounded-lg">
+                  <TableHeader className="bg-gray-100">
+                    <TableRow>
+                      <TableHead className="px-4 py-2 text-left">
+                        Nama Produk
+                      </TableHead>
+                      <TableHead className="px-4 py-2 text-center">
+                        Kuantitas
+                      </TableHead>
+                      <TableHead className="px-4 py-2 text-right">
+                        Subtotal
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedTransaction.items.map((item, index) => (
+                      <TableRow
+                        key={index}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <TableCell className="px-4 py-2">
+                          {item.product_name}
+                        </TableCell>
+                        <TableCell className="px-4 py-2 text-center">
+                          {item.quantity}
+                        </TableCell>
+                        <TableCell className="px-4 py-2 text-right">
+                          {formatPrice(item.sub_total)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

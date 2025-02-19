@@ -3,12 +3,27 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { httpGet, httpPost } from "@/lib/http";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -51,7 +66,11 @@ export default function TransactionsPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [transactionSuccess, setTransactionSuccess] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({ name: "", address: "", phone_number: "" });
+  const [newCustomer, setNewCustomer] = useState({
+    name: "",
+    address: "",
+    phone_number: "",
+  });
   const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -65,19 +84,21 @@ export default function TransactionsPage() {
   }, []);
 
   useEffect(() => {
-      cart.forEach((item) => {
-          setSubTotal((prevSubTotal) => ({
-              ...prevSubTotal,
-              [item.id]: item.price * item.quantity,
-            }));          
-        });
+    cart.forEach((item) => {
+      setSubTotal((prevSubTotal) => ({
+        ...prevSubTotal,
+        [item.id]: item.price * item.quantity,
+      }));
+    });
     setTotal(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
   }, [cart]);
 
   useEffect(() => {
     if (products.length > 0) {
       setProductStock(
-        Object.fromEntries(products.map((product) => [product.id, product.stock]))
+        Object.fromEntries(
+          products.map((product) => [product.id, product.stock])
+        )
       );
     }
   }, [products]);
@@ -94,54 +115,62 @@ export default function TransactionsPage() {
     setCustomers(data.data || []);
   };
 
-    const handleSubmit = async () => {
-      if (!newCustomer.name || !newCustomer.address || !newCustomer.phone_number) return;
-      try {
-        const response = await httpPost('/api/customer', newCustomer);
-        const responseData = await response.json();
-        
-        if (!response.ok) {
-          setErrorMessage(responseData.error);
-          setErrorDialogOpen(true);
-          return;
-        }
-        
-        fetchCustomers();
-        setCustomerDialogOpen(false)
-        setErrorMessage(responseData.message);
+  const handleSubmit = async () => {
+    if (!newCustomer.name || !newCustomer.address || !newCustomer.phone_number)
+      return;
+    try {
+      const response = await httpPost("/api/customer", newCustomer);
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(responseData.error);
         setErrorDialogOpen(true);
-        setNewCustomer({name: "", address: "", phone_number: ""});
-      } catch (error) {
-        console.error("Error saving user:", error);
+        return;
       }
-    };
+
+      fetchCustomers();
+      setCustomerDialogOpen(false);
+      setErrorMessage(responseData.message);
+      setErrorDialogOpen(true);
+      setNewCustomer({ name: "", address: "", phone_number: "" });
+    } catch (error) {
+      console.error("Error saving user:", error);
+    }
+  };
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
-      return prevCart.map((item) => {
-        if (item.id === product.id) {
-          if (item.quantity >= product.stock) {
-            return item;
+      return prevCart
+        .map((item) => {
+          if (item.id === product.id) {
+            if (item.quantity >= product.stock) {
+              return item;
+            }
+            return { ...item, quantity: item.quantity + 1 };
           }
-          return { ...item, quantity: item.quantity + 1 };
-        }
-        return item;
-      }).concat(prevCart.find(item => item.id === product.id) ? [] : [{ ...product, quantity: 1 }]);
+          return item;
+        })
+        .concat(
+          prevCart.find((item) => item.id === product.id)
+            ? []
+            : [{ ...product, quantity: 1 }]
+        );
     });
     setProductStock((prevStock) => ({
       ...prevStock,
       [product.id]: Math.max(0, (prevStock[product.id] || 0) - 1),
     }));
   };
-  
+
   const updateQuantity = (productId: number, newQuantity: number) => {
     setCart((prevCart) => {
       return prevCart.map((item) => {
         if (item.id === productId) {
-          const originalStock = products.find((p) => p.id === productId)?.stock || 0;
+          const originalStock =
+            products.find((p) => p.id === productId)?.stock || 0;
           const currentStock = productStock[productId] ?? originalStock;
           const quantityChange = newQuantity - item.quantity;
-          if (quantityChange > 0 && currentStock < quantityChange) {  
+          if (quantityChange > 0 && currentStock < quantityChange) {
             return item;
           }
           setProductStock((prevStock) => ({
@@ -153,19 +182,21 @@ export default function TransactionsPage() {
         return item;
       });
     });
-  };  
+  };
 
   const removeFromCart = (productId: number) => {
     setCart((prevCart) => {
       const removedItem = prevCart.find((item) => item.id === productId);
-      if (!removedItem) return prevCart; 
-      const originalProduct = products.find((product) => product.id === productId);
+      if (!removedItem) return prevCart;
+      const originalProduct = products.find(
+        (product) => product.id === productId
+      );
       if (!originalProduct) return prevCart;
       setProductStock((prevStock) => ({
         ...prevStock,
         [productId]: originalProduct.stock,
       }));
-  
+
       return prevCart.filter((item) => item.id !== productId);
     });
     setSubTotal((prevSubTotal) => {
@@ -178,8 +209,10 @@ export default function TransactionsPage() {
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  const selectedCustomerName = customers.find(customer => customer.id === Number(selectedCustomer))?.name || "pelanggan";
+
+  const selectedCustomerName =
+    customers.find((customer) => customer.id === Number(selectedCustomer))
+      ?.name || "pelanggan";
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -189,7 +222,11 @@ export default function TransactionsPage() {
       customer_id: selectedCustomer ? Number(selectedCustomer) : null,
       total_price: total,
       sale_date: new Date().toISOString().split("T")[0],
-      items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity, sub_total: subTotal[item.id] })),
+      items: cart.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        sub_total: subTotal[item.id],
+      })),
     };
 
     try {
@@ -197,14 +234,14 @@ export default function TransactionsPage() {
       const responData = await response.json();
       if (!response.ok) {
         setMessage(responData.error);
-        return
+        return;
       }
       setCart([]);
-      setMessage("Transaksi berhasil")
+      setMessage("Transaksi berhasil");
       setDialogOpen(true);
       fetchProducts();
       setTransactionSuccess(true);
-      setSearchTerm('');
+      setSearchTerm("");
     } catch (error) {
       console.error("Transaction error:", error);
     } finally {
@@ -219,7 +256,7 @@ export default function TransactionsPage() {
   return (
     <div className="p-4 pt-2 w-full mx-auto h-screen overflow-hidden scrollbar-hide">
       <div className="flex max-h-full gap-6 h-full pb-28">
-      <div className="flex-1 pb-12">
+        <div className="flex-1 pb-12">
           <h2 className="text-xl font-bold mb-4">Produk</h2>
           <Input
             placeholder="🔍 Cari produk..."
@@ -228,33 +265,53 @@ export default function TransactionsPage() {
             className="mb-4"
           />
           <div className="flex-1 max-h-full overflow-y-auto scrollbar-hide pr-2">
-          <div className="grid grid-cols-2 gap-4">
-            {products
-              .filter((product) => product.product_name.toLowerCase().includes(searchProduct.toLowerCase()))
-              .map((product) => (
-                <Card key={product.id} className={`cursor-pointer hover:shadow-md ${productStock[product.id] === 0 ? "opacity-50 cursor-not-allowed" : ""}`} onClick={() => {
-                  if (product.stock === 0) return;
-                  addToCart(product)
-                }
-                }>
-                  <CardHeader>
-                    <CardTitle>{product.product_name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-lg font-semibold">Rp {formatPrice(product.price)}</p>
-                    <p className="text-sm text-gray-500">Stok: {productStock[product.id]}</p>
-                    <Button className="mt-2 w-full" disabled={productStock[product.id] === 0}>Tambahkan ke keranjang</Button>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              {products
+                .filter((product) =>
+                  product.product_name
+                    .toLowerCase()
+                    .includes(searchProduct.toLowerCase())
+                )
+                .map((product) => (
+                  <Card
+                    key={product.id}
+                    className={`cursor-pointer hover:shadow-md ${
+                      productStock[product.id] === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (product.stock === 0) return;
+                      addToCart(product);
+                    }}
+                  >
+                    <CardHeader>
+                      <CardTitle>{product.product_name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-lg font-semibold">
+                        Rp {formatPrice(product.price)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Stok: {productStock[product.id]}
+                      </p>
+                      <Button
+                        className="mt-2 w-full"
+                        disabled={productStock[product.id] === 0}
+                      >
+                        Tambahkan ke keranjang
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
           </div>
         </div>
         <div className="w-px bg-gray-300"></div>
         <div className="w-1/3 flex flex-col h-full">
           <h2 className="text-xl font-bold mb-4">🛒 Keranjang</h2>
           <div className="relative">
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Input
                 placeholder="🔍 Cari pelanggan..."
                 value={searchTerm}
@@ -266,12 +323,12 @@ export default function TransactionsPage() {
                 onBlur={() => setTimeout(() => setShowDropdown(false), 50)}
                 className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg p-3 shadow-sm focus:ring-1 focus:ring-gray-400"
               />
-            <button 
-              className="h-10 w-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition-all"
-              onClick={() => setCustomerDialogOpen(true)}
-            >
-              <span className="text-xl font-semibold">+</span>
-            </button>
+              <button
+                className="h-10 w-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition-all"
+                onClick={() => setCustomerDialogOpen(true)}
+              >
+                <span className="text-xl font-semibold">+</span>
+              </button>
             </div>
             {showDropdown && filteredCustomers.length > 0 && (
               <div className="absolute w-full bg-white shadow-lg rounded-md mt-1 z-10 max-h-40 overflow-auto scrollbar-hide">
@@ -286,52 +343,61 @@ export default function TransactionsPage() {
                     }}
                   >
                     {customer.name}
-                    
                   </div>
                 ))}
               </div>
             )}
           </div>
           <div className="scrollbar-hide overflow-y-auto">
-          <Table className="mt-4">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produk</TableHead>
-                <TableHead>Kuantitas</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {cart.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.product_name}</TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      value={item.quantity}
-                      min="1"
-                      max={item.stock}
-                      onChange={(e) => {
-                        let newQuantity = parseInt(e.target.value) || 1;                  
-                        updateQuantity(item.id, newQuantity);
-                      }}
-                      className="w-16 text-center"
-                    />
-                  </TableCell>
-                  <TableCell>Rp {formatPrice(subTotal[item.id])}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
-                      <Trash2 className="text-red-500" size={20} />
-                    </Button>
-                  </TableCell>
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Produk</TableHead>
+                  <TableHead>Kuantitas</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Aksi</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {cart.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.product_name}</TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        value={item.quantity}
+                        min="1"
+                        max={item.stock}
+                        onChange={(e) => {
+                          let newQuantity = parseInt(e.target.value) || 1;
+                          updateQuantity(item.id, newQuantity);
+                        }}
+                        className="w-16 text-center"
+                      />
+                    </TableCell>
+                    <TableCell>Rp {formatPrice(subTotal[item.id])}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFromCart(item.id)}
+                      >
+                        <Trash2 className="text-red-500" size={20} />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-          <div className="mt-4 text-xl font-bold">Total: Rp {formatPrice(total)}</div>
-          <Button className="mt-4 w-full" onClick={() => setConfirmDialogOpen(true)} disabled={cart.length === 0}>
+          <div className="mt-4 text-xl font-bold">
+            Total: Rp {formatPrice(total)}
+          </div>
+          <Button
+            className="mt-4 w-full"
+            onClick={() => setConfirmDialogOpen(true)}
+            disabled={cart.length === 0}
+          >
             {loading ? "Memproses..." : "Selesaikan pembelian"}
           </Button>
         </div>
@@ -343,7 +409,9 @@ export default function TransactionsPage() {
             <AlertDialogDescription>{Message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setDialogOpen(false)}>Tutup</AlertDialogAction>
+            <AlertDialogAction onClick={() => setDialogOpen(false)}>
+              Tutup
+            </AlertDialogAction>
             {transactionSuccess && (
               <AlertDialogAction onClick={navigateToTransactionHistory}>
                 Lihat Riwayat
@@ -366,7 +434,8 @@ export default function TransactionsPage() {
               {cart.map((item, index) => (
                 <React.Fragment key={item.id}>
                   <span>
-                    {item.product_name} x {item.quantity} - Rp {formatPrice(subTotal[item.id])}
+                    {item.product_name} x {item.quantity} - Rp{" "}
+                    {formatPrice(subTotal[item.id])}
                   </span>
                   {index !== cart.length - 1 && <br />}
                 </React.Fragment>
@@ -384,44 +453,54 @@ export default function TransactionsPage() {
         </AlertDialogContent>
       </AlertDialog>
       <AlertDialog open={customerDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Tambah Pelanggan</AlertDialogTitle>
-          <AlertDialogDescription>
-            Isi informasi pelanggan baru.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <Input
-          placeholder="Nama Pelanggan"
-          value={newCustomer.name}
-          onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-          required
-        />
-        <Input
-          placeholder="Alamat"
-          value={newCustomer.address}
-          onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
-        />
-        <Input
-          placeholder="Nomor Telepon"
-          value={newCustomer.phone_number}
-          onChange={(e) => setNewCustomer({ ...newCustomer, phone_number: e.target.value })}
-          required
-        />
-        <AlertDialogFooter>
-          <AlertDialogAction onClick={() => setCustomerDialogOpen(false)}>Batal</AlertDialogAction>
-          <AlertDialogAction onClick={handleSubmit}>Tambah</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tambah Pelanggan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isi informasi pelanggan baru.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            placeholder="Nama Pelanggan"
+            value={newCustomer.name}
+            onChange={(e) =>
+              setNewCustomer({ ...newCustomer, name: e.target.value })
+            }
+            required
+          />
+          <Input
+            placeholder="Alamat"
+            value={newCustomer.address}
+            onChange={(e) =>
+              setNewCustomer({ ...newCustomer, address: e.target.value })
+            }
+          />
+          <Input
+            placeholder="Nomor Telepon"
+            value={newCustomer.phone_number}
+            onChange={(e) =>
+              setNewCustomer({ ...newCustomer, phone_number: e.target.value })
+            }
+            required
+          />
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setCustomerDialogOpen(false)}>
+              Batal
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleSubmit}>Tambah</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
-          <AlertDialogContent>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Info</AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>Tutup</AlertDialogAction>
+            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+              Tutup
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

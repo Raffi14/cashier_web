@@ -1,12 +1,27 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { AlertDialogHeader, AlertDialogFooter, AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from '@/components/ui/alert-dialog';
-import { useRouter } from 'next/navigation';
-import { httpPost } from '@/lib/http';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { httpPost } from "@/lib/http";
 
 const Login = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -15,11 +30,11 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const router = useRouter();
   const [passwordError, setPasswordError] = useState("");
-  
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-  
+
     if (newPassword.length > 0 && newPassword.length < 8) {
       setPasswordError("Password must be at least 8 characters");
     } else {
@@ -32,16 +47,16 @@ const Login = () => {
       setPasswordError("Password must be at least 8 characters");
       return;
     }
-    const response = await httpPost('/api/login',{
+    const response = await httpPost("/api/login", {
       username,
       password,
-    })
-    if(!response.ok){
+    });
+    if (!response.ok) {
       const data = await response.json();
       setMessage(data.error || "Login failed");
       setIsAlertOpen(true);
-    }else{
-      return router.push('/views/product');
+    } else {
+      return router.push("/views/product");
     }
   };
   return (
@@ -74,14 +89,13 @@ const Login = () => {
                 placeholder="Masukkan password"
                 required
               />
-            {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+              {passwordError && (
+                <p className="text-red-500 text-sm">{passwordError}</p>
+              )}
             </div>
           </CardContent>
           <CardFooter>
-            <Button 
-              type="submit" 
-              className="w-full"
-            >
+            <Button type="submit" className="w-full">
               Sign in
             </Button>
           </CardFooter>
@@ -91,12 +105,12 @@ const Login = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Info</AlertDialogTitle>
-            <AlertDialogDescription>
-              {message}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setIsAlertOpen(false)}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={() => setIsAlertOpen(false)}>
+              Close
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
