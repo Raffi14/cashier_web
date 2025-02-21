@@ -41,8 +41,8 @@ type User = {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const [message, setmessage] = useState("");
   const [editUser, setEditUser] = useState<User | null>(null);
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
@@ -121,11 +121,13 @@ export default function UsersPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(responseData.error);
-        setErrorDialogOpen(true);
+        setmessage(responseData.error);
+        setdialogOpen(true);
         return;
       }
 
+      setmessage(responseData.message);
+      setdialogOpen(true);
       fetchUsers();
       setModalOpen(false);
     } catch (error) {
@@ -138,16 +140,18 @@ export default function UsersPage() {
   const handleDelete = async (id: number) => {
     try {
       const response = await httpDelete(`/api/user/${id}`);
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
-        setErrorMessage(data.error || "Failed to delete user");
-        setErrorDialogOpen(true);
+        setmessage(data.error || "Failed to delete user");
+        setdialogOpen(true);
         return;
       }
+      setmessage(data.message);
+      setdialogOpen(true);
       fetchUsers();
     } catch (error) {
-      setErrorMessage("Unexpected error occurred");
-      setErrorDialogOpen(true);
+      setmessage("Unexpected error occurred");
+      setdialogOpen(true);
     } finally {
       setConfirmDelete({ id: 0, open: false });
     }
@@ -161,13 +165,14 @@ export default function UsersPage() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1, 
     },
     { accessorKey: "full_name", header: "Nama Lengkap" },
-    { accessorKey: "role", header: "Role" },
+    { accessorKey: "role", header: "Hak Akses" },
     { accessorKey: "username", header: "Nama Pengguna" },
     {
       id: "actions",
@@ -207,7 +212,6 @@ export default function UsersPage() {
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Nama Lengkap */}
             <div className="space-y-1">
               <label
                 htmlFor="fullName"
@@ -224,8 +228,6 @@ export default function UsersPage() {
                 className="w-full"
               />
             </div>
-
-            {/* Nama Pengguna */}
             <div className="space-y-1">
               <label
                 htmlFor="username"
@@ -242,18 +244,16 @@ export default function UsersPage() {
                 className="w-full"
               />
             </div>
-
-            {/* Role */}
             <div className="space-y-1">
               <label
                 htmlFor="role"
                 className="block text-sm font-medium text-gray-700"
               >
-                Role
+                Hak Akses
               </label>
               <Select value={role} onValueChange={setRole}>
                 <SelectTrigger id="role" className="w-full">
-                  <SelectValue placeholder="Pilih role" />
+                  <SelectValue placeholder="Pilih hak akses" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
@@ -261,8 +261,6 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Password */}
             <div className="space-y-1">
               <label
                 htmlFor="password"
@@ -326,14 +324,14 @@ export default function UsersPage() {
           </AlertDialogContent>
         </AlertDialog>
       </Dialog>
-      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+      <AlertDialog open={dialogOpen} onOpenChange={setdialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Info</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+            <AlertDialogAction onClick={() => setdialogOpen(false)}>
               Tutup
             </AlertDialogAction>
           </AlertDialogFooter>

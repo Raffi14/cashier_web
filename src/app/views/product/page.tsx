@@ -45,8 +45,8 @@ type Product = {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const [message, setmessage] = useState("");
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
@@ -106,11 +106,13 @@ export default function ProductsPage() {
 
       const responseData = await response.json();
       if (!response.ok) {
-        setErrorMessage(responseData.error);
-        setErrorDialogOpen(true);
+        setmessage(responseData.error);
+        setdialogOpen(true);
         return;
       }
-
+      
+      setmessage(responseData.message);
+      setdialogOpen(true);
       fetchProducts();
       setModalOpen(false);
     } catch (error) {
@@ -124,16 +126,18 @@ export default function ProductsPage() {
   const handleDelete = async (id: number) => {
     try {
       const response = await httpDelete(`/api/product/${id}`);
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
-        setErrorMessage(data.error || "Gagal menghapus data produk");
-        setErrorDialogOpen(true);
+        setmessage(data.error || "Gagal menghapus data produk");
+        setdialogOpen(true);
         return;
       }
+      setmessage(data.message);
+      setdialogOpen(true);
       fetchProducts();
     } catch (error) {
-      setErrorMessage("An unexpected error occurred");
-      setErrorDialogOpen(true);
+      setmessage("An unexpected error occurred");
+      setdialogOpen(true);
     } finally {
       setConfirmDelete({ id: 0, open: false });
     }
@@ -162,10 +166,11 @@ export default function ProductsPage() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1,      
     },
     { accessorKey: "product_name", header: "Nama" },
     {
@@ -367,14 +372,14 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+      <AlertDialog open={dialogOpen} onOpenChange={setdialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Info</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+            <AlertDialogAction onClick={() => setdialogOpen(false)}>
               Tutup
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -22,12 +22,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import { httpPost } from "@/lib/http";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [passwordError, setPasswordError] = useState("");
 
@@ -36,15 +38,16 @@ const Login = () => {
     setPassword(newPassword);
 
     if (newPassword.length > 0 && newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError("Password harus terdiri dari minimal 8 karakter");
     } else {
       setPasswordError("");
     }
   };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.trim() && password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError("Password harus terdiri dari minimal 8 karakter");
       return;
     }
     const response = await httpPost("/api/login", {
@@ -59,6 +62,7 @@ const Login = () => {
       return router.push("/views/product");
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
@@ -71,7 +75,7 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="username">username</label>
+              <label htmlFor="username">Username</label>
               <Input
                 id="username"
                 type="text"
@@ -80,15 +84,24 @@ const Login = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="password">password</label>
-              <Input
-                id="password"
-                type="password"
-                onChange={handlePasswordChange}
-                placeholder="Masukkan password"
-                required
-              />
+            <div className="space-y-2 relative">
+              <label htmlFor="password">Password</label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  onChange={handlePasswordChange}
+                  placeholder="Masukkan password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               {passwordError && (
                 <p className="text-red-500 text-xs">{passwordError}</p>
               )}
