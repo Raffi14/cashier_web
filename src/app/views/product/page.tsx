@@ -45,8 +45,8 @@ type Product = {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const [message, setmessage] = useState("");
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
@@ -106,11 +106,13 @@ export default function ProductsPage() {
 
       const responseData = await response.json();
       if (!response.ok) {
-        setErrorMessage(responseData.error);
-        setErrorDialogOpen(true);
+        setmessage(responseData.error);
+        setdialogOpen(true);
         return;
       }
-
+      
+      setmessage(responseData.message);
+      setdialogOpen(true);
       fetchProducts();
       setModalOpen(false);
     } catch (error) {
@@ -124,16 +126,18 @@ export default function ProductsPage() {
   const handleDelete = async (id: number) => {
     try {
       const response = await httpDelete(`/api/product/${id}`);
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
-        setErrorMessage(data.error || "Gagal menghapus data produk");
-        setErrorDialogOpen(true);
+        setmessage(data.error || "Gagal menghapus data produk");
+        setdialogOpen(true);
         return;
       }
+      setmessage(data.message);
+      setdialogOpen(true);
       fetchProducts();
     } catch (error) {
-      setErrorMessage("An unexpected error occurred");
-      setErrorDialogOpen(true);
+      setmessage("An unexpected error occurred");
+      setdialogOpen(true);
     } finally {
       setConfirmDelete({ id: 0, open: false });
     }
@@ -162,10 +166,11 @@ export default function ProductsPage() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1,      
     },
     { accessorKey: "product_name", header: "Nama" },
     {
@@ -261,24 +266,44 @@ export default function ProductsPage() {
         type="produk"
       />
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
+        <DialogContent
+          aria-describedby="dialog-description"
+          className="w-full max-w-md p-6"
+        >
           <DialogHeader>
             <DialogTitle>
               {isEditing ? "Edit Produk" : "Tambah Produk"}
             </DialogTitle>
           </DialogHeader>
-          <div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nama Produk
+            </label>
             <Input
+              id="productName"
               placeholder="Nama Produk"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               disabled={isEditing}
+              className="w-full"
             />
-            <div className="flex items-center px-3 py-2">
-              <span className="text-gray-500 mb-1">Rp</span>
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productPrice"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Harga
+            </label>
+            <div className="flex items-center border rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+              <span className="text-gray-500">Rp</span>
               <Input
-                className="border focus:ring-0 ml-2 flex-1"
+                id="productPrice"
+                className="ml-2 flex-1 border-0 focus:ring-0"
                 placeholder="Harga"
                 type="text"
                 value={formattedPrice}
@@ -286,16 +311,31 @@ export default function ProductsPage() {
                 required
               />
             </div>
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="productStock"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Stok
+            </label>
             <Input
+              id="productStock"
               placeholder="Stok"
               type="number"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
               required
+              className="w-full"
             />
           </div>
           <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="w-full"
+            >
               {loading
                 ? "Menyimpan..."
                 : isEditing
@@ -305,6 +345,7 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <AlertDialog
         open={confirmDelete.open}
         onOpenChange={(open) =>
@@ -331,14 +372,14 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+      <AlertDialog open={dialogOpen} onOpenChange={setdialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Info</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+            <AlertDialogAction onClick={() => setdialogOpen(false)}>
               Tutup
             </AlertDialogAction>
           </AlertDialogFooter>

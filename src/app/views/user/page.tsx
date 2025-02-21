@@ -41,8 +41,8 @@ type User = {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const [message, setmessage] = useState("");
   const [editUser, setEditUser] = useState<User | null>(null);
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
@@ -121,11 +121,13 @@ export default function UsersPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(responseData.error);
-        setErrorDialogOpen(true);
+        setmessage(responseData.error);
+        setdialogOpen(true);
         return;
       }
 
+      setmessage(responseData.message);
+      setdialogOpen(true);
       fetchUsers();
       setModalOpen(false);
     } catch (error) {
@@ -138,16 +140,18 @@ export default function UsersPage() {
   const handleDelete = async (id: number) => {
     try {
       const response = await httpDelete(`/api/user/${id}`);
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
-        setErrorMessage(data.error || "Failed to delete user");
-        setErrorDialogOpen(true);
+        setmessage(data.error || "Failed to delete user");
+        setdialogOpen(true);
         return;
       }
+      setmessage(data.message);
+      setdialogOpen(true);
       fetchUsers();
     } catch (error) {
-      setErrorMessage("Unexpected error occurred");
-      setErrorDialogOpen(true);
+      setmessage("Unexpected error occurred");
+      setdialogOpen(true);
     } finally {
       setConfirmDelete({ id: 0, open: false });
     }
@@ -161,13 +165,14 @@ export default function UsersPage() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1, 
     },
     { accessorKey: "full_name", header: "Nama Lengkap" },
-    { accessorKey: "role", header: "Role" },
+    { accessorKey: "role", header: "Hak Akses" },
     { accessorKey: "username", header: "Nama Pengguna" },
     {
       id: "actions",
@@ -205,39 +210,84 @@ export default function UsersPage() {
               {isEditing ? "Edit Pengguna" : "Tambah Pengguna"}
             </DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4">
-            <Input
-              placeholder="Nama Lengkap"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-            <Select onValueChange={setRole} value={role}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="petugas">Petugas</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="Nama Pengguna"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <Input
-              placeholder="Password"
-              onChange={handlePasswordChange}
-              required
-            />
-            {passwordError && (
-              <p className="text-red-500 text-sm">{passwordError}</p>
-            )}
+            <div className="space-y-1">
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nama Lengkap
+              </label>
+              <Input
+                id="fullName"
+                placeholder="Nama Lengkap"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nama Pengguna
+              </label>
+              <Input
+                id="username"
+                placeholder="Nama Pengguna"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Hak Akses
+              </label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger id="role" className="w-full">
+                  <SelectValue placeholder="Pilih hak akses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="petugas">Petugas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                onChange={handlePasswordChange}
+                required
+                className="w-full"
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm">{passwordError}</p>
+              )}
+            </div>
           </div>
+
           <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full"
+            >
               {loading
                 ? "Menyimpan..."
                 : isEditing
@@ -246,6 +296,7 @@ export default function UsersPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
+
         <AlertDialog
           open={confirmDelete.open}
           onOpenChange={(open) =>
@@ -273,14 +324,14 @@ export default function UsersPage() {
           </AlertDialogContent>
         </AlertDialog>
       </Dialog>
-      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+      <AlertDialog open={dialogOpen} onOpenChange={setdialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogTitle>Info</AlertDialogTitle>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+            <AlertDialogAction onClick={() => setdialogOpen(false)}>
               Tutup
             </AlertDialogAction>
           </AlertDialogFooter>

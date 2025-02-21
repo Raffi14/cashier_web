@@ -23,11 +23,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 flex flex-col">
           <header className="flex items-center justify-between bg-white dark:bg-gray-800 border-b p-4 fixed top-0 left-0 right-0 z-50">
             <div className="flex items-center">
-              <SidebarTrigger className="mr-4 p-2 absolute bg-gray-800 text-white rounded-md">
+              <SidebarTrigger className="mr-4 p-2 -mt-1 absolute bg-gray-800 text-white rounded-md">
                 <MenuIcon />
               </SidebarTrigger>
-              <span className="text-gray-900 ml-12 dark:text-gray-100 text-lg font-bold">
-                Hii {role} 👋
+              <span className="ml-12 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Hai, {role}!
               </span>
             </div>
           </header>

@@ -19,7 +19,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table-v2";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Eye, MoreHorizontal, Printer } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -132,85 +132,106 @@ export default function HistoryTransaksi() {
   const printTransaction = (transaction: Transaction) => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
     doc.setFontSize(14);
-    doc.text(`Detail Transaksi #${transaction.id}`, 14, 10);
+    doc.text(`Detail Transaksi`, 14, 10);
+    doc.text(`Pelanggan: ${transaction.customer_name}`, 14, 20);
+    doc.text(`Total Harga: Rp ${transaction.total_price.toLocaleString("id-ID")}`, 14, 30);
+    const saleDate = new Date(transaction.sale_date);
+    const formattedDate = new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(saleDate);
+  
+    doc.text(`Tanggal: ${formattedDate}`, 14, 40);
+  
     doc.autoTable({
-      head: [["Pelanggan", "Total Harga", "Tanggal"]],
-      body: [
-        [
-          transaction.customer_name,
-          `Rp ${transaction.total_price.toLocaleString("id-ID")}`,
-          new Date(transaction.sale_date).toLocaleDateString("id-ID"),
-        ],
-      ],
-      startY: 20,
-      styles: { fontSize: 12, cellPadding: 3 },
-      headStyles: { fillColor: [0, 112, 192], textColor: 255 },
-    });
-    const finalY = (doc as any).lastAutoTable.finalY || 30;
-    doc.autoTable({
-      head: [["Produk", "Qty", "Harga Satuan", "Subtotal"]],
-      body: transaction.items.map((item) => [
+      head: [["No", "Produk", "Kuantitas", "Harga Satuan", "Subtotal"]],
+      body: transaction.items.map((item, index) => [
+        index + 1,
         item.product_name,
         item.quantity,
-        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
-          "id-ID"
-        )}`,
+        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString("id-ID")}`,
         `Rp ${item.sub_total.toLocaleString("id-ID")}`,
       ]),
-      startY: finalY + 10,
-      styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [0, 112, 192], textColor: 255 },
+      startY: 50,
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      headStyles: {
+        fillColor: [0, 112, 192],
+        textColor: 255,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      columnStyles: {
+        2: { halign: "center" },
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
     });
-
+  
     doc.save(`Transaksi_${transaction.id}.pdf`);
   };
+  
+
 
   const exportToPDF = () => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
     doc.setFontSize(14);
     doc.text("Laporan Transaksi", 14, 10);
 
-    doc.autoTable({
-      head: [
-        [
-          "ID",
-          "Pelanggan",
-          "Total Harga",
-          "Tanggal",
-          "Produk",
-          "Qty",
-          "Harga Satuan",
-          "Subtotal",
-        ],
+    const head = [
+      [
+        "ID",
+        "Pelanggan",
+        "Total Harga",
+        "Tanggal",
+        "Produk",
+        "Qty",
+        "Harga Satuan",
+        "Subtotal",
       ],
-      body: filteredTransactions.flatMap((trx) =>
-        trx.items.map((item, index) => [
-          index === 0 ? trx.id : "",
-          index === 0 ? trx.customer_name : "",
-          index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "",
-          index === 0
-            ? new Date(trx.sale_date).toLocaleDateString("id-ID")
-            : "",
-          item.product_name,
-          item.quantity,
-          `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
-            "id-ID"
-          )}`,
-          `Rp ${item.sub_total.toLocaleString("id-ID")}`,
-        ])
-      ),
+    ];
+
+    const body = filteredTransactions.flatMap((trx) =>
+      trx.items.map((item, index) => [
+        index === 0 ? trx.id : "",
+        index === 0 ? trx.customer_name : "",
+        index === 0 ? `Rp ${trx.total_price.toLocaleString("id-ID")}` : "",
+        index === 0 ? new Date(trx.sale_date).toLocaleDateString("id-ID") : "",
+        item.product_name,
+        item.quantity,
+        `Rp ${Math.round(item.sub_total / item.quantity).toLocaleString(
+          "id-ID"
+        )}`,
+        `Rp ${item.sub_total.toLocaleString("id-ID")}`,
+      ])
+    );
+
+    doc.autoTable({
+      head,
+      body,
       startY: 20,
-      styles: { fontSize: 10, cellPadding: 3 },
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
       headStyles: {
         fillColor: [0, 112, 192],
         textColor: 255,
         fontStyle: "bold",
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
       },
       alternateRowStyles: { fillColor: [240, 240, 240] },
       columnStyles: { 4: { cellWidth: "auto" } },
       theme: "striped",
     });
-
     doc.save("Laporan_Transaksi.pdf");
   };
 
@@ -222,10 +243,11 @@ export default function HistoryTransaksi() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1, 
     },
     { accessorKey: "cashier_name", header: "Kasir" },
     { accessorKey: "customer_name", header: "Pelanggan" },
@@ -253,22 +275,21 @@ export default function HistoryTransaksi() {
       id: "actions",
       header: "Aksi",
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="p-2 hover:bg-gray-100 rounded-lg">
-            <MoreHorizontal className="w-5 h-5 cursor-pointer text-gray-600" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="shadow-lg border border-gray-200 rounded-lg">
-            <DropdownMenuItem
-              onClick={() => setSelectedTransaction(row.original)}
-            >
-              Lihat Detail
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => printTransaction(row.original)}>
-              Export PDF
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedTransaction(row.original)}
+            className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            <Eye className="w-5 h-5 text-gray-600" />
+          </button>
+          <button
+            onClick={() => printTransaction(row.original)}
+            className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            <Printer className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      )
     },
   ];
 

@@ -34,8 +34,8 @@ type customers = {
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<customers[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const [message, setmessage] = useState("");
   const [editcustomers, setEditcustomers] = useState<customers | null>(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -44,10 +44,6 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<{
-    id: number;
-    open: boolean;
-  }>({ id: 0, open: false });
 
   const fetchcustomers = async () => {
     const response = await httpGet("/api/customer");
@@ -96,11 +92,13 @@ export default function CustomersPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(responseData.error);
-        setErrorDialogOpen(true);
+        setmessage(responseData.error);
+        setdialogOpen(true);
         return;
       }
-
+      
+      setmessage(responseData.message);
+      setdialogOpen(true);
       fetchcustomers();
       setModalOpen(false);
     } catch (error) {
@@ -146,14 +144,14 @@ export default function CustomersPage() {
   //     const response = await httpDelete(`/api/customer/${id}`);
   //     if (!response.ok) {
   //       const data = await response.json();
-  //       setErrorMessage(data.error || "Gagal menghapus data pelanggan");
-  //       setErrorDialogOpen(true);
+  //       setmessage(data.error || "Gagal menghapus data pelanggan");
+  //       setdialogOpen(true);
   //       return;
   //     }
   //     fetchcustomers();
   //   } catch (error) {
-  //     setErrorMessage("An unexpected error occurred");
-  //     setErrorDialogOpen(true);
+  //     setmessage("An unexpected error occurred");
+  //     setdialogOpen(true);
   //   } finally {
   //     setConfirmDelete({ id: 0, open: false });
   //   }
@@ -167,10 +165,11 @@ export default function CustomersPage() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          No
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.index + 1, 
     },
     { accessorKey: "name", header: "Nama" },
     { accessorKey: "address", header: "Alamat" },
@@ -224,39 +223,73 @@ export default function CustomersPage() {
         type="pelanggan"
       />
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent aria-describedby="input" className="w-full max-w-md p-6">
+        <DialogContent
+          aria-describedby="dialog-description"
+          className="w-full max-w-md p-6"
+        >
           <DialogHeader>
             <DialogTitle>
               {isEditing ? "Edit pelanggan" : "Tambah pelanggan"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-1">
+            <label
+              htmlFor="customerName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nama Pelanggan
+            </label>
             <Input
+              id="customerName"
               placeholder="Nama Pelanggan"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              className="w-full"
             />
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="customerAddress"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Alamat
+            </label>
             <Input
+              id="customerAddress"
               placeholder="Alamat"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               required
+              className="w-full"
             />
-            <div className="flex flex-col">
-              <Input
-                placeholder="Nomer Telepon"
-                value={rawNumber}
-                onChange={handleInputChange}
-                maxLength={17}
-                required
-                className="mb-0"
-              />
-              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-            </div>
           </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="customerPhone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nomer Telepon
+            </label>
+            <Input
+              id="customerPhone"
+              placeholder="Nomer Telepon"
+              value={rawNumber}
+              onChange={handleInputChange}
+              maxLength={17}
+              required
+              className="w-full"
+            />
+            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          </div>
+
           <DialogFooter>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="w-full"
+            >
               {loading
                 ? "Menyimpan..."
                 : isEditing
@@ -266,6 +299,7 @@ export default function CustomersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       {/* <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete({ id: confirmDelete.id, open })}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -278,14 +312,14 @@ export default function CustomersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog> */}
-      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+      <AlertDialog open={dialogOpen} onOpenChange={setdialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>info</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogDescription>{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialogOpen(false)}>
+            <AlertDialogAction onClick={() => setdialogOpen(false)}>
               Tutup
             </AlertDialogAction>
           </AlertDialogFooter>

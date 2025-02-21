@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (getcustomer.length > 0) {
       return NextResponse.json(
-        { error: "Data customer sudah ada" },
+        { error: "Data pelanggan dengan nama  sudah ada" },
         { status: 409 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       .values({ name, address, phone_number })
       .execute();
     return NextResponse.json(
-      { message: "Data berhasil ditambahkan" },
+      { message: "Data pelanggan berhasil ditambahkan" },
       { status: 200 }
     );
   } catch (error) {
