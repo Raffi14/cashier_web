@@ -4,3 +4,4 @@ export const defaultConfig = {
   secretKey: process.env.SECRET_KEY,
   webUrl: process.env.NEXT_PUBLIC_API_URL,
 } as const;
+sdadasdasdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
